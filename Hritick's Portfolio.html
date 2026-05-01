@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Hritick Chourasia — Salesforce Developer | Enterprise Apex · LWC Architecture · Integrations</title>
+<meta name="description" content="Hritick Chourasia — Salesforce Developer specialising in enterprise Apex architecture, LWC system design, and fault-tolerant integrations. Delivered at Wipro and OSF Digital. 5× Certified. Targeting Senior Developer and Solution Architect roles."/>
+<meta name="keywords" content="Salesforce Developer, Apex, LWC, Lightning Web Components, OSF Digital, Wipro, Salesforce Certified, Enterprise Integration, Data Migration"/>
+<meta name="author" content="Hritick Chourasia"/>
+<meta name="robots" content="index,follow"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Hritick Chourasia — Salesforce Developer"/>
+<meta property="og:description" content="Enterprise Salesforce Developer — layered Apex architecture, production LWC, secure integrations. 1M+ records migrated. 5× Certified. Open to Senior and Architect roles."/>
+<meta property="og:image" content="https://hritickchourasia.dev/og-image.png"/>
+<meta property="og:url" content="https://hritickchourasia.dev"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root{
+  --bg:#04080f; --bg2:#070d1a; --bg3:#0b1525;
+  --card:rgba(8,18,38,0.96);
+  --border:rgba(0,180,240,0.10); --border-hi:rgba(0,180,240,0.32);
+  --blue:#0055c8; --blue-hi:#0099e6; --cyan:#00d4f0;
+  --green-hi:#00c49a; --yellow:#ffd700; --orange:#ff6a1a;
+  --accent:#00d4f0; --accent2:#7c3aed; --accent3:#00c49a;
+  --text:#edf4fc; --text2:#89b8d4; --text3:#456a82; --text4:#244155;
+  --glow:rgba(0,180,240,0.13);
+  --glow2:rgba(0,212,240,0.08);
+  --r:14px; --r-sm:8px;
+  --section-pad:6.5rem 2rem;
+  --section-pad-sm:3.5rem 1.25rem;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow-x:hidden;line-height:1.65;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -8%,rgba(0,100,220,0.13) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 20%,rgba(0,212,240,0.05) 0%,transparent 50%);}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;display:block;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--blue-hi);border-radius:2px;}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}}
+
+/* Grid overlay */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,180,240,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,180,240,0.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 110% 70% at 50% 0%,black 5%,transparent 65%);}
+
+/* ─── KEYFRAMES ──────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-18px);}to{opacity:1;transform:translateX(0);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,179,136,.45);}50%{box-shadow:0 0 0 6px rgba(0,179,136,0);}}
+@keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes lineGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+
+/* ─── SCROLL REVEAL ──────────────────────────────────── */
+.sr{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
+.js .sr{opacity:0;transform:translateY(22px);}
+.js .sr.sl{transform:translateX(-22px);}
+.js .sr.sr{transform:translateX(22px);}
+.js .sr.ss{transform:scale(.95);}
+.sr.on{opacity:1!important;transform:none!important;}
+.d1{transition-delay:.04s}.d2{transition-delay:.09s}.d3{transition-delay:.14s}
+.d4{transition-delay:.19s}.d5{transition-delay:.24s}.d6{transition-delay:.29s}
+
+/* ─── PARTICLES ──────────────────────────────────────── */
+#pts{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;}
+
+/* ─── NAV ────────────────────────────────────────────── */
+nav{position:fixed;top:0;inset-inline:0;z-index:900;height:56px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 2.2rem;
+  background:rgba(4,8,15,.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(0,180,240,0.08);transition:box-shadow .3s,border-color .3s,background .3s;}
+nav.up{box-shadow:0 1px 40px rgba(0,0,0,.6),0 0 0 1px rgba(0,180,240,0.10);border-color:rgba(0,180,240,0.14);background:rgba(4,8,15,.96);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;animation:slideIn .55s ease both .1s;}
+.logo em{color:var(--cyan);font-style:normal;}
+.nav-links{display:flex;gap:1.8rem;list-style:none;animation:fadeIn .55s ease both .2s;}
+.nav-links a{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--text3);transition:color .2s;position:relative;padding-bottom:4px;}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:0;height:1px;width:0;background:var(--cyan);transition:width .25s cubic-bezier(.16,1,.3,1);}
+.nav-links a:hover,.nav-links a.on{color:var(--cyan);}
+.nav-links a:hover::after,.nav-links a.on::after{width:100%;}
+.nav-cta{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--cyan);padding:.4rem 1rem;border-radius:5px;
+  border:1px solid rgba(0,212,240,0.35);transition:background .2s,transform .2s,box-shadow .2s,border-color .2s;animation:fadeIn .55s ease both .3s;}
+.nav-cta:hover{background:rgba(0,212,240,0.09);border-color:var(--cyan);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,212,240,.2);}
+.ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:9px;background:none;border:none;min-width:44px;min-height:44px;align-items:center;justify-content:center;}
+.ham span{display:block;width:20px;height:1.5px;background:var(--text);border-radius:2px;transition:transform .28s,opacity .28s;}
+.ham.x span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+.ham.x span:nth-child(2){opacity:0;}
+.ham.x span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
+.mob{display:none;position:fixed;top:56px;inset-inline:0;bottom:0;z-index:800;
+  background:var(--bg);padding:2rem 1.5rem;flex-direction:column;
+  opacity:0;transform:translateY(-8px);transition:opacity .28s,transform .28s;pointer-events:none;border-top:1px solid var(--border);}
+.mob.open{display:flex;opacity:1;transform:none;pointer-events:all;}
+.mob a{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;letter-spacing:.05em;color:var(--text);
+  padding:.7rem 0;border-bottom:1px solid var(--border);transition:color .2s,padding-left .2s;min-height:48px;display:flex;align-items:center;}
+.mob a:hover{color:var(--cyan);padding-left:.4rem;}
+.mob .mob-cta{margin-top:1.4rem;background:var(--blue);color:#fff;text-align:center;padding:.9rem;border-radius:var(--r-sm);justify-content:center;}
+
+.wrap{max-width:1140px;margin:0 auto;}
+section{padding:var(--section-pad);position:relative;z-index:1;}
+section.alt{background:rgba(7,13,26,0.7);}
+.sh{display:flex;align-items:flex-end;gap:.9rem;margin-bottom:3rem;padding-bottom:.9rem;border-bottom:1px solid rgba(0,180,240,0.08);}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;line-height:1;color:rgba(0,212,240,.07);transition:color .3s;user-select:none;}
+section:hover .sn{color:rgba(0,212,240,.14);}
+.sl{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-bottom:.25rem;display:block;opacity:.8;}
+.st{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,3.2vw,2.4rem);letter-spacing:.04em;color:var(--text);}
+
+/* Card base */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);position:relative;overflow:hidden;
+  transition:border-color .28s,transform .28s,box-shadow .28s;
+  box-shadow:0 2px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,0.03);}
+.card:hover{border-color:var(--border-hi);box-shadow:0 0 32px var(--glow),0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(0,212,240,0.06);}
+.card-stripe{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--green-hi));transform:scaleX(0);transform-origin:left;transition:transform .42s cubic-bezier(.16,1,.3,1);}
+.card:hover .card-stripe{transform:scaleX(1);}
+
+/* ─── HERO ───────────────────────────────────────────── */
+#hero{min-height:100dvh;padding:80px 2rem 5rem;display:flex;align-items:center;position:relative;overflow:hidden;}
+#hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,240,0.15),transparent);}
+.glow{position:absolute;pointer-events:none;border-radius:50%;filter:blur(100px);}
+.g1{width:640px;height:480px;background:rgba(0,90,200,0.10);top:-80px;right:-80px;animation:float 9s ease-in-out infinite;}
+.g2{width:380px;height:380px;background:rgba(0,212,240,0.055);bottom:60px;left:-60px;animation:float 12s ease-in-out infinite 3s;}
+.g3{width:300px;height:300px;background:rgba(0,196,154,0.04);top:40%;right:10%;animation:float 15s ease-in-out infinite 6s;}
+.hero-inner{max-width:740px;position:relative;z-index:2;}
+
+.badge{display:inline-flex;align-items:center;gap:.5rem;font-family:'DM Mono',monospace;
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);
+  background:rgba(0,212,240,0.07);border:1px solid rgba(0,212,240,0.22);
+  padding:.3rem .9rem;border-radius:100px;margin-bottom:1.4rem;animation:fadeUp .5s ease both .1s;}
+.bdot{width:6px;height:6px;border-radius:50%;background:var(--green-hi);animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.8rem,11vw,9rem);line-height:.86;letter-spacing:.01em;color:var(--text);animation:fadeUp .6s ease both .25s;}
+.hero-name .sur{display:block;background:linear-gradient(90deg,var(--blue-hi) 0%,var(--cyan) 30%,#00eeff 55%,var(--cyan) 75%,var(--blue-hi) 100%);background-size:260% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeUp .6s ease both .25s,shimmer 5s linear infinite 1.6s;}
+
+.hero-role{margin-top:.6rem;font-family:'DM Mono',monospace;font-size:.82rem;color:var(--text3);letter-spacing:.07em;animation:fadeUp .6s ease both .35s;}
+.hero-role b{color:var(--cyan);font-weight:400;}
+
+.hero-tag{margin-top:1.2rem;font-size:clamp(.92rem,1.8vw,1.06rem);color:var(--text2);max-width:560px;line-height:1.75;animation:fadeUp .6s ease both .43s;}
+.hero-tag strong{color:var(--text);font-weight:600;}
+
+.tw{margin-top:.55rem;font-family:'DM Mono',monospace;font-size:.83rem;color:var(--cyan);animation:fadeUp .6s ease both .5s;min-height:1.2em;}
+.cur{display:inline-block;width:2px;height:.9em;background:var(--cyan);margin-left:2px;vertical-align:middle;animation:blink 1s step-end infinite;}
+
+.chips{margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:.4rem;animation:fadeUp .6s ease both .56s;}
+.chip{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.04em;padding:.26rem .75rem;border-radius:100px;
+  border:1px solid rgba(0,180,240,0.15);color:var(--text3);background:rgba(0,180,240,0.04);transition:border-color .2s,color .2s,transform .18s,background .2s;cursor:default;}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,240,0.07);transform:translateY(-2px);}
+
+.hero-cta{margin-top:1.8rem;display:flex;flex-wrap:wrap;gap:.65rem;animation:fadeUp .6s ease both .65s;}
+.btn{display:inline-flex;align-items:center;gap:.45rem;font-weight:600;font-size:.88rem;padding:.72rem 1.5rem;border-radius:var(--r-sm);transition:background .2s,transform .2s,box-shadow .2s;white-space:nowrap;}
+.btn-p{background:linear-gradient(135deg,var(--blue),rgba(0,153,230,0.9));color:#fff;border:1px solid rgba(0,212,240,0.3);box-shadow:0 4px 18px rgba(0,85,200,.35);}
+.btn-p:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,180,240,.4);}
+.btn-s{background:rgba(0,180,240,0.06);color:var(--text2);border:1px solid rgba(0,180,240,0.18);}
+.btn-s:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,240,0.1);transform:translateY(-2px);}
+
+.hero-stats{margin-top:2.8rem;padding-top:1.8rem;border-top:1px solid rgba(0,180,240,0.1);display:flex;gap:2.4rem;flex-wrap:wrap;animation:fadeUp .6s ease both .8s;}
+.stat .v{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;line-height:1;color:var(--text);}
+.stat .v em{color:var(--cyan);font-style:normal;}
+.stat .l{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);margin-top:.12rem;}
+
+/* ─── CREDIBILITY BAR ────────────────────────────────── */
+#cred{padding:1.4rem 2rem;background:rgba(0,180,240,0.04);border-bottom:1px solid rgba(0,180,240,0.1);position:relative;z-index:1;border-top:1px solid rgba(0,180,240,0.07);}
+.cred-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;justify-content:center;}
+.cred-item{display:flex;align-items:center;gap:.6rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--text3);}
+.cred-item strong{color:var(--text);font-weight:500;}
+.cred-sep{width:1px;height:16px;background:rgba(0,180,240,0.14);}
+
+/* ─── ABOUT ──────────────────────────────────────────── */
+.about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:4rem;align-items:start;}
+.about-lead{font-size:clamp(1.05rem,2vw,1.22rem);color:var(--text);font-weight:500;line-height:1.65;margin-bottom:1.1rem;}
+.about-body{font-size:.92rem;color:var(--text2);line-height:1.82;display:flex;flex-direction:column;gap:.8rem;}
+.about-body strong{color:var(--text);font-weight:600;}
+.about-cta{margin-top:1.6rem;display:flex;gap:.6rem;flex-wrap:wrap;}
+
+.pillars{display:flex;flex-direction:column;gap:.8rem;}
+.pillar{display:flex;align-items:flex-start;gap:.9rem;padding:1.1rem 1.2rem;background:rgba(0,180,240,0.03);border:1px solid rgba(0,180,240,0.1);border-radius:var(--r);transition:border-color .25s,transform .22s,background .25s;cursor:default;}
+.pillar:hover{border-color:rgba(0,212,240,0.28);transform:translateX(4px);background:rgba(0,180,240,0.06);}
+.pi{width:36px;height:36px;border-radius:8px;background:rgba(0,212,240,0.08);border:1px solid rgba(0,212,240,0.16);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.pt{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+.pd{font-size:.76rem;color:var(--text3);line-height:1.55;}
+
+/* ─── IMPACT NUMBERS ─────────────────────────────────── */
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.mc{padding:2rem 1.6rem;transition:transform .25s;}
+.mc:hover{transform:translateY(-5px);}
+.mc-num{font-family:'Bebas Neue',sans-serif;font-size:3.6rem;line-height:1;color:var(--text);margin-bottom:.35rem;}
+.mc-num em{color:var(--cyan);font-style:normal;}
+.mc-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+.mc-desc{font-size:.78rem;color:var(--text3);line-height:1.62;}
+.mc-tag{display:inline-block;margin-top:.9rem;font-family:'DM Mono',monospace;font-size:.53rem;letter-spacing:.07em;padding:.15rem .55rem;border-radius:4px;background:rgba(0,212,240,0.07);border:1px solid rgba(0,212,240,0.14);color:var(--cyan);}
+
+/* ─── EXPERIENCE ─────────────────────────────────────── */
+.exp-list{display:flex;flex-direction:column;gap:1rem;}
+.exp-card{padding:2.2rem 2.2rem 1.8rem;}
+.exp-card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--blue-hi),var(--cyan),var(--green-hi));transform:scaleY(0);transform-origin:top;transition:transform .45s cubic-bezier(.16,1,.3,1);}
+.exp-card:hover::after{transform:scaleY(1);}
+.exp-card:hover{transform:translateY(-2px);}
+.exp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.2rem;flex-wrap:wrap;}
+.exp-badge{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,240,0.08);border:1px solid rgba(0,212,240,0.2);padding:.2rem .72rem;border-radius:100px;}
+.exp-period{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;color:var(--text4);white-space:nowrap;}
+.exp-role{font-size:.84rem;color:var(--text3);margin:.22rem 0 .15rem;}
+.exp-client{font-family:'DM Mono',monospace;font-size:.59rem;color:var(--text4);font-style:italic;margin-bottom:.9rem;}
+.exp-list ul{list-style:none;display:flex;flex-direction:column;gap:.52rem;margin-bottom:1rem;}
+.exp-list li{display:grid;grid-template-columns:auto 1fr;gap:.6rem;font-size:.84rem;color:var(--text2);line-height:1.58;}
+.arr{color:var(--cyan);font-size:.68rem;margin-top:.28rem;flex-shrink:0;font-weight:700;}
+.exp-tags{display:flex;flex-wrap:wrap;gap:.32rem;}
+.etag{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.04em;padding:.14rem .52rem;border-radius:4px;background:rgba(0,180,240,0.06);color:var(--text3);border:1px solid rgba(0,180,240,0.12);}
+
+/* ─── TECH STACK ─────────────────────────────────────── */
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:.7rem;}
+.sc{padding:1.1rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;cursor:default;transition:border-color .22s,transform .22s,box-shadow .22s,background .22s;}
+.sc:hover{border-color:rgba(0,212,240,0.32);transform:translateY(-5px);box-shadow:0 10px 28px rgba(0,180,240,.12);background:rgba(0,180,240,0.05);}
+.sc .si{font-size:1.6rem;}
+.sc .sn{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.04em;color:var(--text2);text-align:center;}
+.sc:hover .sn{color:var(--cyan);}
+
+/* ─── LWC PROJECTS ───────────────────────────────────── */
+.lwc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;}
+.lc{padding:0;display:flex;flex-direction:column;}
+.lc:hover{transform:translateY(-5px);}
+.lc-preview{height:130px;background:rgba(0,180,240,0.03);border-bottom:1px solid rgba(0,180,240,0.08);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0;flex-shrink:0;}
+.lc-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.lc-preview-ph{display:flex;flex-direction:column;align-items:center;gap:.45rem;opacity:.28;}
+.lc-preview-ph .ph-icon{font-size:1.8rem;}
+.lc-preview-ph span{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--text3);letter-spacing:.05em;}
+.lc-diagram{width:100%;height:100%;padding:.75rem 1rem;display:flex;align-items:center;justify-content:center;}
+.lc-diagram svg{width:100%;height:100%;}
+.lc-body{padding:1.4rem 1.5rem;display:flex;flex-direction:column;flex:1;}
+.lc-head{display:flex;align-items:flex-start;gap:.85rem;margin-bottom:.8rem;}
+.lc-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--cyan));box-shadow:0 3px 14px rgba(0,100,220,.4);transition:transform .22s;}
+.lc:hover .lc-icon{transform:scale(1.08) rotate(-4deg);}
+.lc-name{font-size:.97rem;font-weight:700;color:var(--text);line-height:1.28;}
+.lc-co{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-top:.2rem;opacity:.8;}
+.lc-desc{font-size:.81rem;color:var(--text2);line-height:1.62;flex:1;margin-bottom:.8rem;}
+.lc-pts{list-style:none;display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem;}
+.lc-pts li{display:grid;grid-template-columns:auto 1fr;gap:.42rem;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--text3);line-height:1.42;}
+.lc-pts li::before{content:'▸';color:var(--cyan);}
+.lc-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.9rem;}
+.ltag{font-family:'DM Mono',monospace;font-size:.53rem;padding:.13rem .46rem;border-radius:3px;background:rgba(0,180,240,0.06);border:1px solid rgba(0,180,240,0.12);color:var(--text4);}
+.lc-links{display:flex;gap:.45rem;flex-wrap:wrap;}
+.ll{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.06em;color:var(--cyan);border:1px solid rgba(0,212,240,0.22);padding:.24rem .66rem;border-radius:5px;transition:background .18s,color .18s;display:inline-flex;align-items:center;gap:.28rem;}
+.ll:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ─── ARCHITECTURE EXPERTISE ─────────────────────────── */
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.9rem;}
+.ac{padding:1.6rem;}
+.ac:hover{transform:translateY(-3px);}
+.ac-icon{width:38px;height:38px;border-radius:8px;background:rgba(0,212,240,0.08);border:1px solid rgba(0,212,240,0.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:.9rem;}
+.ac-title{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:.6rem;}
+.ac-pts{list-style:none;display:flex;flex-direction:column;gap:.3rem;}
+.ac-pts li{display:grid;grid-template-columns:auto 1fr;gap:.42rem;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--text3);line-height:1.45;}
+.ac-pts li::before{content:'▸';color:var(--cyan);}
+
+/* ─── PHILOSOPHY STRIPE ──────────────────────────────── */
+#philo{padding:3.5rem 2rem;background:linear-gradient(135deg,#020a18 0%,#041e50 55%,#072460 100%);border-top:1px solid rgba(0,180,240,0.1);border-bottom:1px solid rgba(0,180,240,0.1);position:relative;z-index:1;overflow:hidden;}
+#philo::before{content:'';position:absolute;top:-80px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(0,212,240,0.05);pointer-events:none;}
+#philo::after{content:'';position:absolute;bottom:-100px;left:-50px;width:250px;height:250px;border-radius:50%;background:rgba(0,196,154,0.04);pointer-events:none;}
+.philo-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;z-index:1;}
+.philo-ey{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,212,240,.5);display:block;margin-bottom:.7rem;}
+.philo-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,3.2vw,3rem);letter-spacing:.04em;color:var(--text);line-height:1;margin-bottom:.85rem;}
+.philo-b{font-size:.88rem;color:var(--text2);line-height:1.78;}
+.philo-pills{display:flex;flex-wrap:wrap;gap:.48rem;}
+.pp{font-family:'DM Mono',monospace;font-size:.61rem;padding:.32rem .85rem;border-radius:100px;background:rgba(0,212,240,0.07);border:1px solid rgba(0,212,240,0.18);color:rgba(0,212,240,.82);transition:background .2s,transform .18s;cursor:default;}
+.pp:hover{background:rgba(0,212,240,.16);transform:translateY(-2px);}
+
+/* ─── HOW I BUILD ────────────────────────────────────── */
+.hib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:.9rem;}
+.hc{padding:1.6rem;}
+.hc:hover{transform:translateY(-3px);}
+.hc-icon{font-size:1.55rem;margin-bottom:.8rem;display:block;}
+.hc-title{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:.38rem;}
+.hc-desc{font-size:.79rem;color:var(--text3);line-height:1.6;margin-bottom:.8rem;}
+.hc-pts{list-style:none;display:flex;flex-direction:column;gap:.28rem;}
+.hc-pts li{display:grid;grid-template-columns:auto 1fr;gap:.42rem;font-family:'DM Mono',monospace;font-size:.57rem;color:var(--text3);line-height:1.4;}
+.hc-pts li::before{content:'▸';color:var(--cyan);}
+
+/* ─── PROJECTS ───────────────────────────────────────── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.9rem;}
+.pc{padding:1.6rem;display:flex;flex-direction:column;}
+.pc:hover{transform:translateY(-5px);}
+.pn{font-family:'Bebas Neue',sans-serif;font-size:3.4rem;line-height:1;color:rgba(0,212,240,.04);position:absolute;top:.7rem;right:.9rem;pointer-events:none;transition:color .22s;}
+.pc:hover .pn{color:rgba(0,212,240,.09);}
+.pi2{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:.8rem;transition:transform .22s;}
+.pi2.b{background:linear-gradient(135deg,var(--blue),var(--blue-hi));box-shadow:0 3px 12px rgba(0,85,200,.35);}
+.pi2.c{background:linear-gradient(135deg,#007bb5,var(--cyan));box-shadow:0 3px 12px rgba(0,212,240,.28);}
+.pi2.g{background:linear-gradient(135deg,#047a5e,var(--green-hi));box-shadow:0 3px 12px rgba(0,196,154,.28);}
+.pi2.o{background:linear-gradient(135deg,#b83800,var(--orange));box-shadow:0 3px 12px rgba(255,106,26,.28);}
+.pc:hover .pi2{transform:scale(1.08) rotate(-4deg);}
+.pt2{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.38rem;}
+.pd2{font-size:.8rem;color:var(--text3);line-height:1.62;flex:1;margin-bottom:.8rem;}
+.ptags{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.9rem;}
+.ptag{font-family:'DM Mono',monospace;font-size:.53rem;padding:.13rem .46rem;border-radius:3px;background:rgba(0,180,240,0.06);border:1px solid rgba(0,180,240,0.12);color:var(--text4);}
+.plinks{display:flex;gap:.45rem;flex-wrap:wrap;}
+.pl{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.06em;color:var(--cyan);border:1px solid rgba(0,212,240,0.22);padding:.24rem .64rem;border-radius:5px;transition:background .18s,color .18s;}
+.pl:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ─── CERTIFICATIONS ─────────────────────────────────── */
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:.9rem;}
+.certc{padding:1.5rem 1rem;text-align:center;transition:border-color .22s,transform .22s,box-shadow .22s;}
+.certc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--green-hi));transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.16,1,.3,1);}
+.certc:hover{transform:translateY(-5px);border-color:rgba(0,212,240,0.32);box-shadow:0 0 28px var(--glow2);}
+.certc:hover::after{transform:scaleX(1);}
+.ci{font-size:1.7rem;margin-bottom:.55rem;display:block;transition:transform .22s;}
+.certc:hover .ci{transform:scale(1.1) rotate(-4deg);}
+.cn{font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:.18rem;line-height:1.3;}
+.ciss{font-family:'DM Mono',monospace;font-size:.53rem;color:var(--text4);letter-spacing:.06em;}
+
+/* ─── TRAILHEAD ──────────────────────────────────────── */
+.th-banner{background:linear-gradient(135deg,#020c1e 0%,#041e4e 55%,#062460 100%);border:1px solid rgba(0,180,240,0.14);border-radius:16px;padding:2.5rem 2.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.6rem;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(0,212,240,0.1);}
+.th-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(0,212,240,0.05);}
+.th-l{display:flex;align-items:center;gap:1.2rem;position:relative;z-index:1;}
+.th-em{font-size:2.8rem;animation:float 5s ease-in-out infinite;}
+.th-lbl{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;color:var(--text);line-height:.95;letter-spacing:.04em;}
+.th-sub{font-family:'DM Mono',monospace;font-size:.57rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text4);margin-top:.3rem;}
+.th-nums{display:flex;gap:2rem;position:relative;z-index:1;}
+.thn{text-align:center;}
+.thn-v{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--text);line-height:1;}
+.thn-v em{color:var(--yellow);font-style:normal;}
+.thn-l{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);margin-top:.1rem;}
+.th-cta{display:inline-flex;align-items:center;gap:.48rem;font-weight:600;font-size:.84rem;background:linear-gradient(135deg,var(--blue),var(--blue-hi));color:#fff;padding:.72rem 1.5rem;border-radius:var(--r-sm);border:1px solid rgba(0,212,240,0.28);transition:background .2s,transform .2s,box-shadow .2s;position:relative;z-index:1;}
+.th-cta:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,180,240,.36);}
+
+/* ─── OPEN TO WORK ───────────────────────────────────── */
+#otw{padding:4.5rem 2rem;background:linear-gradient(135deg,#020a18 0%,#041a40 55%,#062050 100%);border-top:1px solid rgba(0,180,240,0.1);position:relative;overflow:hidden;z-index:1;}
+#otw::before{content:'';position:absolute;top:-80px;right:-40px;width:360px;height:360px;border-radius:50%;background:rgba(0,212,240,0.04);pointer-events:none;}
+.otw-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:center;position:relative;z-index:1;}
+.otw-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.5vw,3.5rem);letter-spacing:.03em;color:var(--text);line-height:1;margin-bottom:.7rem;}
+.otw-h em{color:var(--cyan);font-style:normal;}
+.otw-p{font-size:.9rem;color:var(--text2);line-height:1.72;max-width:500px;margin-bottom:1.1rem;}
+.otw-tags{display:flex;flex-wrap:wrap;gap:.5rem;}
+.ot{font-family:'DM Mono',monospace;font-size:.59rem;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .78rem;border-radius:100px;border:1px solid rgba(0,180,240,0.2);color:rgba(0,180,240,.65);}
+.ot.g{border-color:rgba(0,196,154,.32);color:rgba(0,196,154,.88);}
+.otw-btns{display:flex;flex-direction:column;gap:.7rem;min-width:190px;}
+
+/* ─── CONTACT ────────────────────────────────────────── */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.contact-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,4rem);letter-spacing:.03em;color:var(--text);line-height:.95;margin-bottom:.9rem;}
+.contact-h em{color:var(--cyan);font-style:normal;}
+.contact-p{font-size:.9rem;color:var(--text);line-height:1.72;margin-bottom:1.6rem;opacity:.85;}
+.email-btn{display:inline-flex;align-items:center;gap:.55rem;font-size:.92rem;font-weight:600;background:linear-gradient(135deg,var(--blue),var(--blue-hi));color:#fff;padding:.82rem 1.7rem;border-radius:var(--r-sm);border:1px solid rgba(0,212,240,0.28);box-shadow:0 4px 18px rgba(0,85,200,.35);transition:background .2s,transform .2s,box-shadow .2s;}
+.email-btn:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,180,240,.42);}
+.clinks{display:flex;flex-direction:column;gap:.6rem;}
+.cl{display:flex;align-items:center;gap:.9rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.2rem;transition:border-color .2s,transform .2s,box-shadow .2s;}
+.cl:hover{border-color:rgba(0,212,240,0.28);transform:translateX(5px);box-shadow:0 0 24px var(--glow);}
+.cl-ic{font-size:1.15rem;}
+.cl-p{font-size:.85rem;font-weight:600;color:var(--text);}
+.cl-h{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--text4);letter-spacing:.04em;margin-top:.07rem;}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer{background:rgba(4,8,15,0.98);border-top:1px solid rgba(0,180,240,0.08);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;position:relative;z-index:1;}
+.fb{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em;}
+.fb em{color:var(--cyan);font-style:normal;}
+.fr{display:flex;align-items:center;gap:1.4rem;}
+.fs{display:flex;align-items:center;gap:.45rem;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--text4);}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--green-hi);animation:pulse 2s ease-in-out infinite;}
+.fc{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--text4);}
+
+/* ─── MOBILE ─────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 1.1rem;}
+  .nav-links{display:none;}
+  .ham{display:flex;}
+  #hero{padding:70px 1.25rem 2.8rem;min-height:100svh;}
+  .hero-name{font-size:clamp(2.9rem,15vw,4.6rem);}
+  .hero-tag{font-size:.88rem;}
+  .hero-stats{gap:1.3rem;}
+  .stat .v{font-size:1.9rem;}
+  .hero-cta{gap:.5rem;}
+  .btn{font-size:.83rem;padding:.65rem 1.15rem;}
+  section{padding:var(--section-pad-sm);}
+  .st{font-size:1.55rem;}
+  .cred-inner{gap:1.2rem;justify-content:flex-start;}
+  .cred-sep{display:none;}
+  .about-grid{grid-template-columns:1fr;gap:2rem;}
+  .impact-grid{grid-template-columns:repeat(2,1fr);}
+  .stack-grid{grid-template-columns:repeat(3,1fr);gap:.5rem;}
+  .sc{padding:.8rem .35rem;}
+  .sc .si{font-size:1.45rem;}
+  .lwc-grid,.proj-grid{grid-template-columns:1fr;}
+  .cert-grid{grid-template-columns:repeat(2,1fr);}
+  .th-banner{flex-direction:column;padding:1.7rem 1.2rem;}
+  .th-nums{gap:1.3rem;}
+  .th-cta{width:100%;justify-content:center;}
+  .contact-grid{grid-template-columns:1fr;gap:1.8rem;}
+  .philo-inner{grid-template-columns:1fr;gap:1.5rem;}
+  .otw-inner{grid-template-columns:1fr;}
+  .otw-btns{flex-direction:row;flex-wrap:wrap;}
+  footer{padding:1.2rem 1.1rem;}
+  .arch-grid{grid-template-columns:1fr;}
+  .hib-grid{grid-template-columns:1fr;}
+}
+@media(max-width:400px){
+  .impact-grid{grid-template-columns:1fr;}
+  .stack-grid{grid-template-columns:repeat(2,1fr);}
+  .cert-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ── POSITIONING STATEMENT ── */
+#position{padding:2.8rem 2rem 0;position:relative;z-index:1;}
+.pos-inner{max-width:1140px;margin:0 auto;}
+.pos-statement{
+  font-size:clamp(1.05rem,2.2vw,1.25rem);font-weight:500;color:var(--text);
+  line-height:1.72;border-left:3px solid var(--blue-hi);
+  padding-left:1.4rem;max-width:820px;
+}
+.pos-statement em{color:var(--blue-hi);font-style:normal;font-weight:600;}
+
+/* ── ACHIEVEMENTS STRIP ── */
+#achievements{padding:2.2rem 2rem;background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.ach-inner{max-width:1140px;margin:0 auto;}
+.ach-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue-hi);margin-bottom:.85rem;display:block;}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.65rem;}
+.ach-item{display:flex;align-items:flex-start;gap:.65rem;padding:.75rem .9rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);transition:border-color .2s;}
+.ach-item:hover{border-color:var(--border-hi);}
+.ach-icon{font-size:1rem;flex-shrink:0;margin-top:.1rem;}
+.ach-text{font-size:.78rem;color:var(--text2);line-height:1.5;}
+.ach-text strong{color:var(--text);font-weight:600;display:block;margin-bottom:.1rem;}
+
+/* ── TECH SNAPSHOT ── */
+#snapshot{padding:2rem 2rem;position:relative;z-index:1;}
+.snap-inner{max-width:1140px;margin:0 auto;}
+.snap-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue-hi);margin-bottom:.85rem;display:block;}
+.snap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.6rem;}
+.snap-row{display:flex;align-items:baseline;gap:.5rem;padding:.5rem .8rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);}
+.snap-cap{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text4);white-space:nowrap;flex-shrink:0;min-width:90px;}
+.snap-val{font-size:.78rem;color:var(--text2);}
+.snap-val strong{color:var(--blue-hi);font-weight:500;}
+
+/* ── RECRUITER CTA ── */
+#rcta{padding:3.5rem 2rem;background:var(--bg2);border-top:1px solid var(--border);position:relative;z-index:1;overflow:hidden;}
+#rcta::before{content:'';position:absolute;top:-60px;right:-40px;width:280px;height:280px;border-radius:50%;background:rgba(0,161,224,.06);pointer-events:none;}
+.rcta-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:center;position:relative;z-index:1;}
+.rcta-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,3.5vw,2.6rem);letter-spacing:.03em;color:var(--text);line-height:1;margin-bottom:.6rem;}
+.rcta-h em{color:var(--blue-hi);font-style:normal;}
+.rcta-facts{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem;}
+.rcta-fact{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:.26rem .72rem;border-radius:100px;}
+.rcta-fact.hi{background:rgba(0,179,136,.12);border:1px solid rgba(0,179,136,.3);color:rgba(0,179,136,.9);}
+.rcta-fact.lo{background:rgba(0,161,224,.08);border:1px solid rgba(0,161,224,.22);color:rgba(0,161,224,.75);}
+.rcta-note{font-size:.8rem;color:var(--text3);line-height:1.6;max-width:480px;}
+.rcta-btns{display:flex;flex-direction:column;gap:.65rem;min-width:190px;}
+.rcta-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;font-size:.88rem;padding:.78rem 1.5rem;border-radius:var(--r-sm);transition:background .2s,transform .2s,box-shadow .2s;white-space:nowrap;text-align:center;}
+.rcta-btn.p{background:var(--blue);color:#fff;border:1px solid rgba(0,161,224,.38);box-shadow:0 4px 14px rgba(0,112,210,.3);}
+.rcta-btn.p:hover{background:var(--blue-hi);transform:translateY(-2px);box-shadow:0 7px 20px rgba(0,161,224,.4);}
+.rcta-btn.s{background:rgba(0,161,224,.08);color:var(--blue-hi);border:1px solid rgba(0,161,224,.26);}
+.rcta-btn.s:hover{background:rgba(0,161,224,.15);transform:translateY(-2px);}
+@media(max-width:768px){
+  #position{padding:2rem 1.25rem 0;}
+  #achievements{padding:1.8rem 1.25rem;}
+  .ach-grid{grid-template-columns:1fr 1fr;}
+  #snapshot{padding:1.8rem 1.25rem;}
+  .snap-grid{grid-template-columns:1fr;}
+  #rcta{padding:2.8rem 1.25rem;}
+  .rcta-inner{grid-template-columns:1fr;}
+  .rcta-btns{flex-direction:row;flex-wrap:wrap;}
+}
+@media(max-width:400px){.ach-grid{grid-template-columns:1fr;}}
+
+/* ══════════════════════════════════════════════════════
+   GLOBAL ACTION BAR — Sticky Floating
+══════════════════════════════════════════════════════ */
+#gab{
+  position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);
+  z-index:950;
+  display:flex;align-items:center;gap:.45rem;
+  background:rgba(4,8,15,.95);
+  border:1px solid rgba(0,212,240,0.22);
+  border-radius:100px;
+  padding:.42rem .55rem;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,240,.05),0 0 32px rgba(0,180,240,0.08);
+  transition:opacity .3s,transform .3s;
+  opacity:0;pointer-events:none;
+}
+#gab.visible{opacity:1;pointer-events:all;}
+.gab-btn{
+  display:inline-flex;align-items:center;gap:.38rem;
+  font-family:'DM Mono',monospace;font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text2);padding:.46rem .9rem;border-radius:100px;
+  transition:background .18s,color .18s,transform .18s;white-space:nowrap;
+  border:1px solid transparent;
+}
+.gab-btn:hover{background:rgba(0,212,240,0.09);color:var(--cyan);border-color:rgba(0,212,240,0.18);transform:translateY(-1px);}
+.gab-btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-hi));color:#fff;border-color:rgba(0,212,240,.3);}
+.gab-btn.primary:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-1px);}
+.gab-sep{width:1px;height:18px;background:rgba(0,212,240,0.12);flex-shrink:0;}
+
+/* Mobile: bottom full-width bar */
+@media(max-width:768px){
+  #gab{
+    bottom:0;left:0;right:0;transform:none;
+    border-radius:0;border-left:none;border-right:none;border-bottom:none;
+    padding:.5rem .75rem;justify-content:space-around;
+    gap:.2rem;
+  }
+  .gab-btn{font-size:.55rem;padding:.42rem .6rem;gap:.28rem;}
+  .gab-sep{display:none;}
+  body{padding-bottom:68px;}
+}
+
+/* ══════════════════════════════════════════════════════
+   HERO — Enhanced Primary Actions
+══════════════════════════════════════════════════════ */
+.hero-cta-row{margin-top:1.8rem;display:flex;flex-wrap:wrap;gap:.55rem;animation:fadeUp .6s ease both .65s;}
+.hero-cta-row .btn-hero-p{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-weight:700;font-size:.9rem;padding:.78rem 1.65rem;border-radius:var(--r-sm);
+  background:linear-gradient(135deg,var(--blue),var(--blue-hi));color:#fff;
+  border:1px solid rgba(0,212,240,.35);
+  box-shadow:0 4px 20px rgba(0,85,200,.38);
+  transition:background .2s,transform .2s,box-shadow .2s;white-space:nowrap;
+}
+.hero-cta-row .btn-hero-p:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,180,240,.45);}
+.hero-cta-row .btn-hero-s{
+  display:inline-flex;align-items:center;gap:.42rem;
+  font-weight:500;font-size:.85rem;padding:.72rem 1.25rem;border-radius:var(--r-sm);
+  background:rgba(0,180,240,0.05);color:var(--text2);
+  border:1px solid rgba(0,180,240,0.18);
+  transition:border-color .2s,color .2s,background .2s,transform .2s;white-space:nowrap;
+}
+.hero-cta-row .btn-hero-s:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,240,.08);transform:translateY(-2px);}
+.hero-recruiter-note{
+  margin-top:.9rem;
+  font-family:'DM Mono',monospace;font-size:.57rem;letter-spacing:.09em;
+  color:var(--text4);animation:fadeUp .6s ease both .72s;
+}
+.hero-recruiter-note em{color:var(--green-hi);font-style:normal;}
+
+/* ══════════════════════════════════════════════════════
+   LWC / PROJECT CARDS — Enhanced Action Footer
+══════════════════════════════════════════════════════ */
+.lc-action-bar{
+  border-top:1px solid rgba(0,180,240,0.08);
+  padding:.85rem 1.5rem;
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  background:rgba(0,180,240,0.02);
+}
+.lc-action-btn{
+  display:inline-flex;align-items:center;gap:.32rem;
+  font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.07em;
+  color:var(--text3);padding:.28rem .72rem;border-radius:5px;
+  border:1px solid rgba(0,180,240,0.16);
+  transition:background .18s,color .18s,border-color .18s,transform .15s;
+}
+.lc-action-btn:hover{background:rgba(0,212,240,0.09);color:var(--cyan);border-color:rgba(0,212,240,.28);transform:translateY(-1px);}
+.lc-action-btn.primary{background:rgba(0,85,200,.14);color:var(--cyan);border-color:rgba(0,212,240,.25);}
+.lc-action-btn.primary:hover{background:var(--blue);color:#fff;}
+.lc-psi-label{
+  font-family:'DM Mono',monospace;font-size:.53rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text4);padding:.3rem 0 .15rem;width:100%;
+}
+.psi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.5rem 0 .7rem;}
+.psi-cell{padding:.55rem .7rem;background:rgba(0,180,240,0.03);border:1px solid rgba(0,180,240,0.09);border-radius:6px;}
+.psi-cell-label{font-family:'DM Mono',monospace;font-size:.47rem;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:.25rem;opacity:.8;}
+.psi-cell-val{font-size:.72rem;color:var(--text2);line-height:1.45;}
+
+/* ══════════════════════════════════════════════════════
+   PROJECT CARDS — Enhanced action links
+══════════════════════════════════════════════════════ */
+.pc-action-bar{
+  border-top:1px solid rgba(0,180,240,0.08);
+  margin:0 -1.6rem -1.6rem;padding:.75rem 1.6rem;
+  display:flex;flex-wrap:wrap;gap:.38rem;
+  background:rgba(0,180,240,0.02);
+}
+.pc-action-btn{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.06em;
+  color:var(--text3);padding:.26rem .68rem;border-radius:5px;
+  border:1px solid rgba(0,180,240,0.16);
+  transition:background .18s,color .18s,border-color .18s;
+}
+.pc-action-btn:hover{background:rgba(0,212,240,0.09);color:var(--cyan);border-color:rgba(0,212,240,.26);}
+
+/* ══════════════════════════════════════════════════════
+   MICRO-ACTION TRUST LINKS
+══════════════════════════════════════════════════════ */
+.micro-action{
+  display:inline-flex;align-items:center;gap:.32rem;
+  font-family:'DM Mono',monospace;font-size:.59rem;letter-spacing:.06em;
+  color:var(--cyan);text-decoration:underline;text-decoration-color:rgba(0,212,240,.28);
+  text-underline-offset:3px;cursor:pointer;
+  transition:color .18s,text-decoration-color .18s;
+}
+.micro-action:hover{color:#00eeff;text-decoration-color:rgba(0,238,255,.45);}
+.micro-actions-row{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin-top:.75rem;}
+
+/* ══════════════════════════════════════════════════════
+   RECRUITER CTA SECTION — Upgraded
+══════════════════════════════════════════════════════ */
+#recruiter-cta{
+  padding:5.5rem 2rem;
+  background:linear-gradient(135deg,#020a1a 0%,#041840 40%,#072258 70%,#020e20 100%);
+  border-top:2px solid rgba(0,212,240,.15);
+  position:relative;z-index:1;overflow:hidden;
+}
+#recruiter-cta::before{content:'';position:absolute;top:-120px;right:-80px;width:500px;height:500px;border-radius:50%;background:rgba(0,212,240,.04);pointer-events:none;}
+#recruiter-cta::after{content:'';position:absolute;bottom:-80px;left:-60px;width:340px;height:340px;border-radius:50%;background:rgba(0,85,200,.04);pointer-events:none;}
+.rcta2-inner{max-width:1140px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+.rcta2-eyebrow{font-family:'DM Mono',monospace;font-size:.61rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(0,212,240,.55);margin-bottom:1rem;display:block;}
+.rcta2-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5.5vw,4rem);letter-spacing:.04em;color:var(--text);line-height:1;margin-bottom:1.4rem;}
+.rcta2-h em{color:var(--cyan);font-style:normal;}
+.avail-badges{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;margin-bottom:2rem;}
+.avail-badge{
+  display:inline-flex;align-items:center;gap:.42rem;
+  font-family:'DM Mono',monospace;font-size:.61rem;letter-spacing:.09em;text-transform:uppercase;
+  padding:.36rem 1rem;border-radius:100px;
+}
+.avail-badge.green{background:rgba(0,196,154,.1);border:1px solid rgba(0,196,154,.28);color:rgba(0,196,154,.95);}
+.avail-badge.blue{background:rgba(0,212,240,.07);border:1px solid rgba(0,212,240,.22);color:rgba(0,212,240,.85);}
+.rcta2-btns{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;margin-bottom:1.5rem;}
+.rcta2-btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-weight:700;font-size:.92rem;padding:.88rem 2rem;border-radius:var(--r-sm);
+  transition:background .2s,transform .2s,box-shadow .2s;white-space:nowrap;
+}
+.rcta2-btn.p{background:linear-gradient(135deg,var(--blue),var(--blue-hi));color:#fff;border:1px solid rgba(0,212,240,.35);box-shadow:0 6px 22px rgba(0,85,200,.38);}
+.rcta2-btn.p:hover{background:linear-gradient(135deg,var(--blue-hi),var(--cyan));transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,180,240,.45);}
+.rcta2-btn.s{background:rgba(0,212,240,.07);color:var(--cyan);border:1px solid rgba(0,212,240,.24);}
+.rcta2-btn.s:hover{background:rgba(0,212,240,.14);transform:translateY(-2px);}
+.rcta2-note{font-family:'DM Mono',monospace;font-size:.61rem;color:var(--text4);letter-spacing:.05em;}
+@media(max-width:768px){
+  #recruiter-cta{padding:3.5rem 1.25rem;}
+  .rcta2-btn{font-size:.85rem;padding:.75rem 1.3rem;width:100%;justify-content:center;}
+  .rcta2-btns{flex-direction:column;}
+}
+
+/* ══════════════════════════════════════════════════════
+   CONTACT — Action Card Style
+══════════════════════════════════════════════════════ */
+.contact-action-cards{display:flex;flex-direction:column;gap:.55rem;}
+.cac{
+  display:flex;align-items:center;justify-content:space-between;gap:.9rem;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:1rem 1.25rem;
+  transition:border-color .25s,transform .22s,box-shadow .25s;
+  cursor:pointer;
+}
+.cac:hover{border-color:rgba(0,212,240,0.28);transform:translateX(5px);box-shadow:0 0 28px var(--glow);}
+.cac-left{display:flex;align-items:center;gap:.85rem;}
+.cac-ic{font-size:1.2rem;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:rgba(0,212,240,0.07);border:1px solid rgba(0,212,240,0.14);flex-shrink:0;}
+.cac-label{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.11em;text-transform:uppercase;color:var(--text4);margin-bottom:.15rem;}
+.cac-val{font-size:.88rem;font-weight:600;color:var(--text);}
+.cac-action{
+  font-family:'DM Mono',monospace;font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--cyan);padding:.32rem .88rem;border-radius:5px;
+  border:1px solid rgba(0,212,240,.22);white-space:nowrap;
+  transition:background .18s,color .18s;
+}
+.cac:hover .cac-action{background:var(--blue);color:#fff;border-color:var(--blue);}
+@media(max-width:480px){
+  .cac{flex-direction:column;align-items:flex-start;}
+  .cac-action{align-self:flex-end;}
+}
+</style>
+</head>
+<body>
+<canvas id="pts" aria-hidden="true"></canvas>
+
+<!-- ════ GLOBAL ACTION BAR ════ -->
+<div id="gab" role="complementary" aria-label="Quick actions">
+  <a href="mailto:hritick84ya@gmail.com" class="gab-btn primary">✉ Email Me</a>
+  <div class="gab-sep" aria-hidden="true"></div>
+  <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="gab-btn">💼 LinkedIn</a>
+  <div class="gab-sep" aria-hidden="true"></div>
+  <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="gab-btn">🐙 GitHub</a>
+  <div class="gab-sep" aria-hidden="true"></div>
+  <a href="Hritick_Chourasia_Resume.pdf" target="_blank" rel="noopener" class="gab-btn">📄 Resume</a>
+</div>
+
+<!-- NAV -->
+<header>
+<nav id="nav" role="navigation" aria-label="Main navigation">
+  <div class="logo" aria-label="Hritick Chourasia">HRITICK<em>.</em></div>
+  <ul class="nav-links" role="list">
+    <li><a href="#achievements">Highlights</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#lwc">LWC</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certs">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="Hritick_Chourasia_Resume.pdf" target="_blank" rel="noopener" class="nav-cta">↓ Resume</a>
+  <button class="ham" id="ham" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</nav>
+</header>
+
+<nav class="mob" id="mob" aria-label="Mobile navigation">
+  <a href="#about" onclick="closeMob()">About</a>
+  <a href="#experience" onclick="closeMob()">Experience</a>
+  <a href="#lwc" onclick="closeMob()">LWC Projects</a>
+  <a href="#architecture" onclick="closeMob()">Architecture</a>
+  <a href="#projects" onclick="closeMob()">Projects</a>
+  <a href="#certs" onclick="closeMob()">Certifications</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+  <a href="Hritick_Chourasia_Resume.pdf" target="_blank" rel="noopener" class="mob-cta" onclick="closeMob()">↓ Download Resume</a>
+</nav>
+
+<main>
+
+<!-- ════ HERO ════ -->
+<section id="hero" aria-label="Introduction">
+  <div class="glow g1" aria-hidden="true"></div>
+  <div class="glow g2" aria-hidden="true"></div>
+  <div class="hero-inner">
+
+    <div class="badge">
+      <span class="bdot" aria-hidden="true"></span>
+      Available · Senior Salesforce Developer · OSF Digital
+    </div>
+
+    <h1 class="hero-name">HRITICK<span class="sur">CHOURASIA</span></h1>
+
+    <p class="hero-role">Salesforce Developer &nbsp;·&nbsp; <b>OSF Digital</b> &nbsp;·&nbsp; System Design · Data Architecture · Integration Engineering</p>
+
+    <p class="hero-tag">
+      <strong>3+ years</strong> delivering enterprise Salesforce — Apex, LWC, integrations, security architecture —
+      at <strong>Wipro Technologies</strong> and <strong>OSF Digital</strong>.
+      Shipped 15+ production features with zero downtime. Migrated 1M+ records without data loss.
+      Can work independently. Can own modules. Ready now.
+    </p>
+
+    <div class="tw" aria-live="polite"><span id="tw"></span><span class="cur" aria-hidden="true"></span></div>
+
+    <div class="chips" role="list" aria-label="Key skills">
+      <span class="chip" role="listitem">System Design</span>
+      <span class="chip" role="listitem">Async Processing Strategy</span>
+      <span class="chip" role="listitem">Event-Driven Architecture</span>
+      <span class="chip" role="listitem">Security Governance</span>
+      <span class="chip" role="listitem">Data Architecture</span>
+      <span class="chip" role="listitem">Integration Fault Tolerance</span>
+      <span class="chip" role="listitem">LWC at Scale</span>
+      <span class="chip" role="listitem">Performance Engineering</span>
+      <span class="chip" role="listitem">Reusable Frameworks</span>
+      <span class="chip" role="listitem">Org Maintainability</span>
+    </div>
+
+    <div class="hero-cta-row">
+      <a href="Hritick_Chourasia_Resume.pdf" target="_blank" rel="noopener" class="btn-hero-p">📄 Download Resume</a>
+      <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="btn-hero-s">🐙 View GitHub Work</a>
+      <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="btn-hero-s">💼 Connect on LinkedIn</a>
+      <a href="mailto:hritick84ya@gmail.com" class="btn-hero-s">✉ Contact Me</a>
+    </div>
+    <p class="hero-recruiter-note">📍 Open to Pune · BLR · HYD · Noida · Remote</p>
+
+    <div class="hero-stats" role="list" aria-label="Key numbers">
+      <div class="stat" role="listitem"><div class="v" data-to="3">0<em>+</em></div><div class="l">Yrs Enterprise Delivery</div></div>
+      <div class="stat" role="listitem"><div class="v" data-to="4">0</div><div class="l">Certifications</div></div>
+      <div class="stat" role="listitem"><div class="v" data-to="145">0<em>k</em></div><div class="l">Trailhead Points</div></div>
+      <div class="stat" role="listitem"><div class="v" data-to="182">0</div><div class="l">Trailhead Badges</div></div>
+      <div class="stat" role="listitem"><div class="v" data-to="15">0<em>+</em></div><div class="l">Zero-Downtime Releases</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════ CREDIBILITY BAR ════ -->
+<div id="cred" role="complementary" aria-label="Credentials summary">
+  <div class="cred-inner">
+    <div class="cred-item"><span>🏢</span><span><strong>OSF Digital</strong> · Sep 2025–Present</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>🏢</span><span><strong>Wipro Technologies</strong> · Mar 2023–Aug 2025</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>🏅</span><span><strong>4×</strong> Certified · PDI · Admin · SCC · AI</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>🏔️</span><span>Trailhead <strong>Ranger</strong> · 145k pts</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>🗄️</span><span><strong>1M+</strong> records · full data strategy · zero loss</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>🎓</span><span>B.Tech CSE · <strong>8.73 DGPA</strong> · BCREC</span></div>
+    <div class="cred-sep" aria-hidden="true"></div>
+    <div class="cred-item"><span>📍</span><span>Kolkata · Open to <strong>Pune / BLR / HYD / Noida / Remote</strong></span></div>
+  </div>
+</div>
+
+
+<!-- ════ POSITIONING STATEMENT ════ -->
+<section id="position" aria-label="Professional positioning">
+  <div class="pos-inner">
+    <p class="pos-statement sr">
+      Salesforce Developer with <em>3+ years of enterprise delivery</em> — production systems, 
+      architectural ownership, and real business outcomes at Wipro and OSF Digital. 
+      I write <em>clean, layered Apex</em>, design <em>fault-tolerant integrations</em>, 
+      architect <em>LWC systems at scale</em>, and build <em>security models that pass audits</em>. 
+      I work independently, make architectural calls, and leave orgs in better shape than I found them.
+    </p>
+  </div>
+</section>
+
+<!-- ════ KEY ACHIEVEMENTS ════ -->
+<section id="achievements" aria-labelledby="ach-h">
+  <div class="ach-inner">
+    <span class="ach-label" id="ach-h">Key Achievements — at a glance</span>
+    <div class="ach-grid">
+      <div class="ach-item sr d1">
+        <span class="ach-icon">🗄️</span>
+        <div class="ach-text"><strong>1M+ Records Migrated</strong>Zero data loss. Full reconciliation audit. Rollback-safe Batch Apex design.</div>
+      </div>
+      <div class="ach-item sr d2">
+        <span class="ach-icon">⚡</span>
+        <div class="ach-text"><strong>40% Support Deflection</strong>Einstein AI Chatbot designed end-to-end. 90% CSAT. 100K+ subscribers served.</div>
+      </div>
+      <div class="ach-item sr d3">
+        <span class="ach-icon">🔒</span>
+        <div class="ach-text"><strong>Security Model Passed Audit</strong>Designed enterprise-wide access governance from scratch. First-attempt compliance pass.</div>
+      </div>
+      <div class="ach-item sr d4">
+        <span class="ach-icon">🚀</span>
+        <div class="ach-text"><strong>15+ Zero-Downtime Releases</strong>Dev → QA → UAT → Prod pipeline. Rollback strategy on every release. Zero incidents.</div>
+      </div>
+      <div class="ach-item sr d5">
+        <span class="ach-icon">📡</span>
+        <div class="ach-text"><strong>Event-Driven Integration Built</strong>Platform Events eliminating stale-slot collisions across concurrent ad-booking sessions.</div>
+      </div>
+      <div class="ach-item sr d6">
+        <span class="ach-icon">🔔</span>
+        <div class="ach-text"><strong>100K+ Subscribers Reliably Reached</strong>Multi-channel notification engine. Idempotent retries. Zero duplicate sends at scale.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ TECH SNAPSHOT ════ -->
+<section id="snapshot" class="alt" aria-labelledby="snap-h">
+  <div class="snap-inner">
+    <span class="snap-label" id="snap-h">Tech capability — quick scan</span>
+    <div class="snap-grid">
+      <div class="snap-row sr d1"><span class="snap-cap">Backend</span><span class="snap-val"><strong>Apex</strong> · Trigger Framework · Batch · Queueable · Scheduled · Future</span></div>
+      <div class="snap-row sr d2"><span class="snap-cap">Frontend</span><span class="snap-val"><strong>LWC</strong> · @wire · LMS · CustomEvents · lightning-datatable · 10K+ rows</span></div>
+      <div class="snap-row sr d3"><span class="snap-cap">Integration</span><span class="snap-val"><strong>REST/SOAP</strong> · Platform Events · CDC · WhatsApp API · SSO / SAML</span></div>
+      <div class="snap-row sr d4"><span class="snap-cap">Data</span><span class="snap-val"><strong>SOQL · SOSL</strong> · Data Loader · Batch migration · Field mapping engine</span></div>
+      <div class="snap-row sr d5"><span class="snap-cap">Security</span><span class="snap-val"><strong>OWD · Profiles · Permission Sets</strong> · Sharing Rules · CRUD/FLS · Named Credentials</span></div>
+      <div class="snap-row sr d6"><span class="snap-cap">Automation</span><span class="snap-val"><strong>Flow Builder</strong> · Process Builder migration · Approval Processes · UAP engine</span></div>
+      <div class="snap-row sr d1"><span class="snap-cap">Architecture</span><span class="snap-val"><strong>Domain Layer</strong> · Service Layer · Selector Pattern · Factory / Strategy</span></div>
+      <div class="snap-row sr d2"><span class="snap-cap">Testing</span><span class="snap-val"><strong>TestDataFactory</strong> · Stub API · HttpCalloutMock · 95%+ coverage</span></div>
+      <div class="snap-row sr d3"><span class="snap-cap">Tooling</span><span class="snap-val"><strong>VS Code · SFDX · Git</strong> · Workbench · Postman · JIRA · ChangeSets</span></div>
+      <div class="snap-row sr d4"><span class="snap-cap">Platforms</span><span class="snap-val"><strong>Salesforce</strong> · Service Cloud · Experience Cloud · Einstein · AWS</span></div>
+      <div class="snap-row sr d5"><span class="snap-cap">Certs</span><span class="snap-val"><strong>Platform Dev I · Admin · Service Cloud · AI Associate</strong> · AWS CCP</span></div>
+      <div class="snap-row sr d6"><span class="snap-cap">Trailhead</span><span class="snap-val"><strong>Ranger</strong> · 145,175 pts · 182 Badges · 19 Trails</span></div>
+    </div>
+  </div>
+</section>
+<!-- ════ ABOUT ════ -->
+<section id="about" class="alt" aria-labelledby="about-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">01</span>
+      <div><span class="sl">Can he work independently? Can he mentor? Read on.</span><h2 class="st sr d1" id="about-h">ABOUT ME</h2></div>
+    </div>
+    <div class="about-grid">
+
+      <div class="sr">
+        <p class="about-lead">Senior Salesforce Developer with 3+ years of enterprise delivery. I own modules end-to-end, make architectural decisions independently, and build systems other developers can extend.</p>
+        <div class="about-body">
+          <p><strong>Can he handle production systems?</strong> Yes. 15+ features shipped across Dev → UAT → Prod pipelines. Zero downtime. Rollback strategy on every release. 1M+ records migrated without data loss.</p>
+          <p><strong>Can he work independently?</strong> Yes. At both OSF Digital and Wipro, I owned modules end-to-end — data model, Apex layer, LWC, integration, security, deployment. No hand-holding needed for complex delivery.</p>
+          <p><strong>Can he mentor juniors?</strong> Yes. I document architectural decisions, write reusable frameworks other developers can follow, and build orgs structured so a new developer can navigate them without the original author present.</p>
+        </div>
+        <div class="about-cta">
+          <a href="mailto:hritick84ya@gmail.com" class="btn btn-p" style="font-size:.85rem;padding:.62rem 1.3rem;">✉ Email Me</a>
+          <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="btn btn-s" style="font-size:.85rem;padding:.62rem 1.3rem;">💼 LinkedIn</a>
+        </div>
+      </div>
+
+      <div class="pillars sr" style="transition-delay:.08s">
+        <div class="pillar">
+          <div class="pi" aria-hidden="true">⚡</div>
+          <div><div class="pt">LWC System Design</div><div class="pd">Designed component hierarchies for 10K+ record volumes. Chose @wire vs imperative, LMS vs CustomEvents, and datatable strategies based on data shape, update frequency, and coupling risk — not defaults.</div></div>
+        </div>
+        <div class="pillar">
+          <div class="pi" aria-hidden="true">🏗️</div>
+          <div><div class="pt">Layered Apex Architecture</div><div class="pd">Every org I deliver on gets trigger framework, domain layer, service layer, selector pattern — applied with intent. The goal is an org the next developer can navigate without the original author in the room.</div></div>
+        </div>
+        <div class="pillar">
+          <div class="pi" aria-hidden="true">🔗</div>
+          <div><div class="pt">Fault-Tolerant Integration Design</div><div class="pd">Designed integration layers with the assumption of failure: exponential backoff, dead-letter queues, Platform Events for async decoupling, Named Credentials for secret governance. Built for 100K+ subscribers — engineered for the edge cases.</div></div>
+        </div>
+        <div class="pillar">
+          <div class="pi" aria-hidden="true">🎯</div>
+          <div><div class="pt">Availability &amp; Location</div><div class="pd">Based in Kolkata. Open to relocation: Pune · Bangalore · Hyderabad · Noida. Remote-friendly. Targeting Senior Developer and Solution Architect roles.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════ IMPACT NUMBERS ════ -->
+<section id="impact" aria-labelledby="impact-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">02</span>
+      <div><span class="sl">Numbers that answer the question: can he deliver?</span><h2 class="st sr d1" id="impact-h">KEY IMPACT</h2></div>
+    </div>
+    <div class="impact-grid">
+      <article class="card mc sr d1">
+        <div class="card-stripe"></div>
+        <div class="mc-num">1<em>M+</em></div>
+        <div class="mc-title">Records Migrated</div>
+        <div class="mc-desc">Designed the full data strategy — scope sizing, transformation rules, staged rollback, and reconciliation audit. Batch scope calibrated to avoid heap and CPU limits at volume.</div>
+        <span class="mc-tag">Data Architecture · Batch Apex</span>
+      </article>
+      <article class="card mc sr d2">
+        <div class="card-stripe"></div>
+        <div class="mc-num">40<em>%</em></div>
+        <div class="mc-title">Faster Support Response</div>
+        <div class="mc-desc">Einstein Chatbot autonomously resolving queries — designed dialog trees, Apex actions, and live agent handoff. 90% CSAT.</div>
+        <span class="mc-tag">Einstein Bot · Service Cloud</span>
+      </article>
+      <article class="card mc sr d3">
+        <div class="card-stripe"></div>
+        <div class="mc-num">35<em>%</em></div>
+        <div class="mc-title">Admin Overhead Eliminated</div>
+        <div class="mc-desc">Evaluated Flow-only vs Flow + Apex hybrid — chose hybrid to handle complex conditional logic and bulk lifecycle events. Designed the permission model before writing a line of automation.</div>
+        <span class="mc-tag">Security Governance · UAP Architecture</span>
+      </article>
+      <article class="card mc sr d4">
+        <div class="card-stripe"></div>
+        <div class="mc-num">28<em>%</em></div>
+        <div class="mc-title">Subscription Renewal Lift</div>
+        <div class="mc-desc">Chose Platform Events over scheduled polling for real-time campaign targeting — decoupled the subscriber state change from the outbound notification entirely. Designed for 100K+ concurrent subscriber events.</div>
+        <span class="mc-tag">Event-Driven Architecture · Integration</span>
+      </article>
+      <article class="card mc sr d5">
+        <div class="card-stripe"></div>
+        <div class="mc-num">100<em>k+</em></div>
+        <div class="mc-title">Subscribers Reliably Reached</div>
+        <div class="mc-desc">Designed async processing strategy — Batch for volume dispatch, Queueable chains for per-record retry, idempotency keys to prevent duplicate sends. Custom Metadata drives channel config without code changes.</div>
+        <span class="mc-tag">Async Processing Strategy · Reusable Framework</span>
+      </article>
+      <article class="card mc sr d6">
+        <div class="card-stripe"></div>
+        <div class="mc-num">0<em>%</em></div>
+        <div class="mc-title">Production Downtime</div>
+        <div class="mc-desc">15+ features through structured Dev → QA → UAT → Prod pipeline. Rollback strategy documented before every release. Deployment sequence designed around data dependency order and trigger execution context.</div>
+        <span class="mc-tag">Release Engineering · Org Maintainability</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ════ EXPERIENCE ════ -->
+<section id="experience" class="alt" aria-labelledby="exp-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">03</span>
+      <div><span class="sl">Production delivery · Independent ownership · Architectural decisions made</span><h2 class="st sr d1" id="exp-h">EXPERIENCE</h2></div>
+    </div>
+    <div class="exp-list">
+
+      <article class="card exp-card sr" itemscope itemtype="https://schema.org/WorkExperience">
+        <div class="card-stripe"></div>
+        <div class="exp-top">
+          <div>
+            <span class="exp-badge" itemprop="worksFor">OSF Digital</span>
+            <div class="exp-role" itemprop="jobTitle">Salesforce Developer · Remote &nbsp;|&nbsp; Enterprise Transformation</div>
+            <div class="exp-client">Data Architecture · Security Governance · Access Lifecycle Engineering · Internal LWC Tooling</div>
+          </div>
+          <span class="exp-period">Sep 2025 — Present</span>
+        </div>
+        <ul aria-label="Achievements">
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Data Architecture:</strong> Designed the full migration strategy — source profiling, field-mapping engine, multi-pass transformation, governor-limit-safe Batch scope sizing, and a staged rollback mechanism. Chose Batch over Queueable after evaluating heap behaviour at 1M-record volume. <strong style="color:var(--text)">Zero data loss. Full reconciliation audit.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Security Governance:</strong> Modelled the org's access architecture before any configuration — OWD private baseline, Role Hierarchy per cost-centre, manual Sharing Rules for cross-unit exceptions, Permission Sets for every access grant. Chose a Permission Set Groups strategy over Profile proliferation to keep the model auditable. <strong style="color:var(--text)">Passed compliance review first attempt.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Automation Design:</strong> Evaluated pure-Flow vs Flow + Apex hybrid for the UAP engine — chose hybrid to handle branching lifecycle logic and bulk event processing that Screen Flow can't support. Designed the permission provisioning model first, then the automation layer. Eliminated the manual access queue entirely. <strong style="color:var(--text)">35% admin overhead reduction.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">LWC System Design:</strong> Designed the component hierarchy before writing any markup — parent owns entitlement state, child datatable receives slices via @api, grant/revoke intent propagates upward via composed CustomEvents to the Apex service layer. Chose @wire with reactive userId param over imperative calls to eliminate stale-data risk. <strong style="color:var(--text)">500+ entitlements managed from one screen.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Performance Engineering:</strong> Designed the Security Permissions Viewer to surface org-wide access data without SOQL timeouts — reactive $params on @wire, filter state drives re-query automatically, custom column renderers avoid unnecessary DOM diffing. CSV export uses datatable selected-rows event, no extra server call. <strong style="color:var(--text)">60% reduction in audit effort.</strong></span></li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag">Data Architecture</span><span class="etag">Security Governance</span><span class="etag">Batch Apex</span><span class="etag">Async Strategy</span><span class="etag">LWC Design</span><span class="etag">UAP Engine</span><span class="etag">Permission Sets</span>
+        </div>
+      </article>
+
+      <article class="card exp-card sr" itemscope itemtype="https://schema.org/WorkExperience">
+        <div class="card-stripe"></div>
+        <div class="exp-top">
+          <div>
+            <span class="exp-badge" itemprop="worksFor">Wipro Technologies</span>
+            <div class="exp-role" itemprop="jobTitle">Salesforce Developer · Pune / Kolkata &nbsp;|&nbsp; High-Scale Media Platform</div>
+            <div class="exp-client">Client: BCCL – The Times of India &nbsp;·&nbsp; 100K+ subscriber platform · Subscription · Advertising · Service Cloud</div>
+          </div>
+          <span class="exp-period">Mar 2023 — Aug 2025</span>
+        </div>
+        <ul aria-label="Achievements">
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Architecture Decision:</strong> Evaluated IVR, Einstein Bot, and custom chatbot against integration cost and training data requirements. Recommended Einstein Bot for native Salesforce record access and lower maintenance overhead. Designed the full intent hierarchy, Apex action integration layer for real-time data fetch, and escalation logic preserving conversation context on handoff. <strong style="color:var(--text)">40% query deflection. 90% CSAT. 100K+ subscribers.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">LWC Performance Engineering:</strong> Evaluated client-side vs server-side pagination for 10K+ rows — chose offset-SOQL pagination after profiling heap usage with in-memory collections. Parent container owns global filter state and passes data slices to child datatable via @api. Row-action CustomEvents propagate to service-layer Apex with no direct child-to-Apex coupling. Bulk operations dispatched to Batch Apex to stay inside DML governor limits.</span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Event-Driven Architecture:</strong> Designed the booking system around a Platform Event bus — slot state changes publish to an event, all active sessions subscribe and update reactively, eliminating polling and preventing stale-slot double-bookings. Chose LMS over CustomEvents because Campaign Selector and Slot Picker share no DOM ancestor. <strong style="color:var(--text)">Zero page refresh. Booking complete in under 3 interactions.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Integration &amp; Release Leadership:</strong> Designed the SAML SSO attribute mapping and JIT provisioning strategy before cutover — tested in a full sandbox clone, documented rollback triggers, and coordinated the live window across infrastructure, QA, and release teams. Separately designed the WhatsApp API integration with exponential retry and dead-letter logging. <strong style="color:var(--text)">Zero downtime. Zero rollbacks. Renewal rate up 28%.</strong></span></li>
+          <li><span class="arr" aria-hidden="true">→</span><span><strong style="color:var(--text)">Performance &amp; Data Strategy:</strong> Evaluated declarative vs programmatic for 10+ processes — automated Flow-first where logic was stateless, escalated to Apex only where bulk context or complex branching was required. Designed Apex archiving strategy: selective field population, indexed filter criteria, and archive object partitioning to reduce active record volume. <strong style="color:var(--text)">40% less manual effort. 25% storage reduction. 20% query performance gain.</strong></span></li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag">Event-Driven Design</span><span class="etag">LWC Performance</span><span class="etag">Async Strategy</span><span class="etag">Integration Architecture</span><span class="etag">SSO / SAML</span><span class="etag">Data Strategy</span><span class="etag">AI Integration</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════ LWC PROJECTS ════ -->
+<section id="lwc" aria-labelledby="lwc-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">04</span>
+      <div><span class="sl">LWC System Design</span><h2 class="st sr d1" id="lwc-h">LWC PROJECTS</h2></div>
+    </div>
+    <div class="lwc-grid">
+
+      <article class="card lc sr d1">
+        <div class="card-stripe"></div>
+        <!-- Inline architecture diagram -->
+        <div class="lc-preview">
+          <div class="lc-diagram">
+            <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" aria-label="Component architecture diagram">
+              <defs><marker id="a1" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#00a1e0" stroke-width="1.2"/></marker></defs>
+              <!-- Parent -->
+              <rect x="90" y="8" width="100" height="28" rx="5" fill="rgba(0,112,210,.18)" stroke="#0070d2" stroke-width="1"/>
+              <text x="140" y="26" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#e8f4fd">Parent Container</text>
+              <!-- Child datatable -->
+              <rect x="20" y="60" width="100" height="28" rx="5" fill="rgba(0,161,224,.12)" stroke="#00a1e0" stroke-width="1"/>
+              <text x="70" y="75" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#a8c5da">lightning-datatable</text>
+              <text x="70" y="84" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#4e7a96">10K+ rows</text>
+              <!-- Apex -->
+              <rect x="160" y="60" width="100" height="28" rx="5" fill="rgba(0,195,227,.1)" stroke="#00c3e3" stroke-width="1"/>
+              <text x="210" y="75" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#a8c5da">Apex Service</text>
+              <text x="210" y="84" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#4e7a96">Batch + SOQL</text>
+              <!-- Arrows -->
+              <line x1="140" y1="36" x2="70" y2="60" stroke="#0070d2" stroke-width="1" marker-end="url(#a1)"/>
+              <text x="90" y="52" font-family="DM Mono,monospace" font-size="6" fill="#3a6078">@api</text>
+              <line x1="120" y1="74" x2="160" y2="74" stroke="#00a1e0" stroke-width="1" marker-end="url(#a1)"/>
+              <text x="132" y="70" font-family="DM Mono,monospace" font-size="6" fill="#3a6078">event</text>
+            </svg>
+          </div>
+        </div>
+        <div class="lc-body">
+          <div class="lc-head">
+            <div class="lc-icon" aria-hidden="true">📋</div>
+            <div><div class="lc-name">Subscription Management Console</div><div class="lc-co">Wipro · BCCL / Times of India · Full system design ownership</div></div>
+          </div>
+          <p class="lc-desc">Designed component architecture, data pagination strategy, and Apex service layer before writing a line of markup. Key trade-off: server-side pagination chosen over client-side after profiling heap usage at 10K rows.</p>
+          <ul class="lc-pts">
+            <li>State management: parent owns filter + selection state, slices to child via @api</li>
+            <li>Offset-SOQL pagination — evaluated OFFSET vs cursor vs client-filter; chose OFFSET for predictable limit behaviour at 10K rows</li>
+            <li>CustomEvents propagate row intent upward — child has zero Apex coupling</li>
+            <li>Draft-values pattern: collect all edits client-side, single bulkified upsert to avoid DML limit scatter</li>
+          </ul>
+          <div class="lc-tags"><span class="ltag">LWC</span><span class="ltag">lightning-datatable</span><span class="ltag">@wire</span><span class="ltag">CustomEvents</span><span class="ltag">Batch Apex</span></div>
+          <div class="lc-links">
+            <a href="https://github.com/hritick84ya/subscription-management-console" target="_blank" rel="noopener" class="ll">🐙 GitHub</a>
+            <a href="https://github.com/hritick84ya/subscription-management-console/blob/main/docs/architecture.md" target="_blank" rel="noopener" class="ll">📐 Architecture</a>
+          </div>
+        </div>
+        <div class="lc-action-bar">
+          <a href="https://github.com/hritick84ya/subscription-management-console" target="_blank" rel="noopener" class="lc-action-btn primary">🐙 GitHub Repo</a>
+          <a href="https://github.com/hritick84ya/subscription-management-console/blob/main/docs/architecture.md" target="_blank" rel="noopener" class="lc-action-btn">📐 Architecture Diagram</a>
+          <a href="https://hritick84ya.github.io/subscription-management-console" target="_blank" rel="noopener" class="lc-action-btn">🎬 Live Demo</a>
+          <a href="#" class="micro-action" style="margin-left:auto;align-self:center;">View Component Flow →</a>
+        </div>
+      </article>
+
+      <article class="card lc sr d2">
+        <div class="card-stripe"></div>
+        <div class="lc-preview">
+          <div class="lc-diagram">
+            <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" aria-label="LMS communication diagram">
+              <defs><marker id="a2" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#00a1e0" stroke-width="1.2"/></marker></defs>
+              <!-- LMS hub -->
+              <rect x="105" y="38" width="70" height="26" rx="13" fill="rgba(0,161,224,.2)" stroke="#00a1e0" stroke-width="1.2"/>
+              <text x="140" y="54" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#00a1e0">LMS</text>
+              <!-- Components -->
+              <rect x="8" y="10" width="76" height="22" rx="4" fill="rgba(0,112,210,.14)" stroke="#0070d2" stroke-width="1"/>
+              <text x="46" y="24" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#e8f4fd">Campaign Selector</text>
+              <rect x="196" y="10" width="76" height="22" rx="4" fill="rgba(0,112,210,.14)" stroke="#0070d2" stroke-width="1"/>
+              <text x="234" y="24" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#e8f4fd">Slot Picker</text>
+              <rect x="8" y="80" width="76" height="22" rx="4" fill="rgba(0,195,227,.1)" stroke="#00c3e3" stroke-width="1"/>
+              <text x="46" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Confirmation</text>
+              <rect x="196" y="80" width="76" height="22" rx="4" fill="rgba(0,195,227,.1)" stroke="#00c3e3" stroke-width="1"/>
+              <text x="234" y="91" text-anchor="middle" font-family="DM Mono,monospace" font-size="6.5" fill="#a8c5da">Platform Events</text>
+              <text x="234" y="100" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#4e7a96">real-time slots</text>
+              <!-- Lines -->
+              <line x1="84" y1="21" x2="105" y2="47" stroke="#0070d2" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a2)"/>
+              <line x1="196" y1="47" x2="176" y2="21" stroke="#0070d2" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a2)"/>
+              <line x1="105" y1="57" x2="84" y2="80" stroke="#00a1e0" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a2)"/>
+              <line x1="176" y1="57" x2="196" y2="80" stroke="#00a1e0" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a2)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="lc-body">
+          <div class="lc-head">
+            <div class="lc-icon" aria-hidden="true">📢</div>
+            <div><div class="lc-name">Ad Campaign Booking Module</div><div class="lc-co">Wipro · BCCL / Times of India · Event-driven real-time system</div></div>
+          </div>
+          <p class="lc-desc">Designed around a Platform Event bus to eliminate stale-slot collisions between concurrent sessions. Architecture decision: LMS over CustomEvents after identifying that booking components share no DOM ancestor across page regions.</p>
+          <ul class="lc-pts">
+            <li>LMS vs CustomEvents decision: LMS selected — Campaign Selector and Slot Picker have no shared DOM ancestor; CustomEvents would require artificial wrapper coupling</li>
+            <li>Platform Events as the slot state bus — publisher (availability service) is fully decoupled from all subscriber sessions</li>
+            <li>Reactive validation via computed getters — no re-render triggered until actual state changes, reducing unnecessary wire adapter calls</li>
+            <li>3-stage decoupled flow: each stage independently testable, replaceable without touching adjacent components</li>
+          </ul>
+          <div class="lc-tags"><span class="ltag">LWC</span><span class="ltag">LMS</span><span class="ltag">Platform Events</span><span class="ltag">@track</span></div>
+          <div class="lc-links">
+            <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="ll">🐙 GitHub</a>
+            <a href="#" class="ll">📐 Architecture</a>
+          </div>
+        </div>
+        <div class="lc-action-bar">
+          <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="lc-action-btn primary">🐙 GitHub Repo</a>
+          <a href="#" class="lc-action-btn">📐 Architecture Diagram</a>
+          <a href="#" class="lc-action-btn">🎬 Live Demo</a>
+          <a href="#" class="micro-action" style="margin-left:auto;align-self:center;">See Integration Flow →</a>
+        </div>
+      </article>
+
+      <article class="card lc sr d3">
+        <div class="card-stripe"></div>
+        <div class="lc-preview">
+          <div class="lc-diagram">
+            <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" aria-label="3-level component hierarchy diagram">
+              <defs><marker id="a3" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#00a1e0" stroke-width="1.2"/></marker></defs>
+              <!-- Level 1 -->
+              <rect x="90" y="6" width="100" height="24" rx="4" fill="rgba(0,112,210,.2)" stroke="#0070d2" stroke-width="1.2"/>
+              <text x="140" y="21" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#e8f4fd">Dashboard (L1)</text>
+              <!-- Level 2 -->
+              <rect x="22" y="46" width="82" height="22" rx="4" fill="rgba(0,161,224,.14)" stroke="#00a1e0" stroke-width="1"/>
+              <text x="63" y="60" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">User List (L2)</text>
+              <rect x="176" y="46" width="82" height="22" rx="4" fill="rgba(0,161,224,.14)" stroke="#00a1e0" stroke-width="1"/>
+              <text x="217" y="57" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Entitlement</text>
+              <text x="217" y="66" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Panel (L2)</text>
+              <!-- Level 3 -->
+              <rect x="90" y="86" width="100" height="20" rx="4" fill="rgba(0,195,227,.1)" stroke="#00c3e3" stroke-width="1"/>
+              <text x="140" y="99" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Audit Log (L3)</text>
+              <!-- Wires -->
+              <line x1="110" y1="30" x2="63" y2="46" stroke="#0070d2" stroke-width="1" marker-end="url(#a3)"/>
+              <line x1="170" y1="30" x2="217" y2="46" stroke="#0070d2" stroke-width="1" marker-end="url(#a3)"/>
+              <line x1="140" y1="30" x2="140" y2="86" stroke="#00a1e0" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a3)"/>
+              <text x="148" y="62" font-family="DM Mono,monospace" font-size="5.5" fill="#3a6078">@wire</text>
+            </svg>
+          </div>
+        </div>
+        <div class="lc-body">
+          <div class="lc-head">
+            <div class="lc-icon" aria-hidden="true">🔐</div>
+            <div><div class="lc-name">User Access Provisioning Dashboard</div><div class="lc-co">OSF Digital · Security governance tooling · Designed &amp; owned</div></div>
+          </div>
+          <p class="lc-desc">Started with the permission data model — not the UI. Designed the access governance layer first, then the component hierarchy to expose it. Built to handle bulk entitlement changes without hitting DML governor limits.</p>
+          <ul class="lc-pts">
+            <li>@wire adapter with reactive $userId param — entitlement changes trigger automatic re-query without imperative refresh calls</li>
+            <li>composed:true + bubbles:true on grant/revoke events — intent travels up component tree without parent-child import coupling at any level</li>
+            <li>Draft-values accumulated client-side across the session, committed in one bulkified Apex upsert — avoids per-row DML limit scatter</li>
+            <li>Audit log subscribes to the same reactive @wire source — stale state is architecturally impossible</li>
+          </ul>
+          <div class="lc-tags"><span class="ltag">LWC</span><span class="ltag">@wire</span><span class="ltag">CustomEvents</span><span class="ltag">lightning-datatable</span></div>
+          <div class="lc-links">
+            <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="ll">🐙 GitHub</a>
+          </div>
+        </div>
+        <div class="lc-action-bar">
+          <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="lc-action-btn primary">🐙 GitHub Repo</a>
+          <a href="#" class="lc-action-btn">📐 Architecture Diagram</a>
+          <a href="#" class="lc-action-btn">🎬 Live Demo</a>
+          <a href="#" class="micro-action" style="margin-left:auto;align-self:center;">View Migration Strategy →</a>
+        </div>
+      </article>
+
+      <article class="card lc sr d4">
+        <div class="card-stripe"></div>
+        <div class="lc-preview">
+          <div class="lc-diagram">
+            <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" aria-label="Security Permissions Viewer architecture diagram">
+              <defs>
+                <marker id="a4" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#00a1e0" stroke-width="1.2"/></marker>
+                <marker id="a4g" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#00b388" stroke-width="1.2"/></marker>
+              </defs>
+              <!-- Filter Bar -->
+              <rect x="8" y="8" width="264" height="18" rx="4" fill="rgba(0,161,224,.1)" stroke="#00a1e0" stroke-width="1"/>
+              <text x="16" y="20" font-family="DM Mono,monospace" font-size="6.5" fill="#00a1e0">Filter State ($params)</text>
+              <rect x="218" y="11" width="46" height="12" rx="3" fill="rgba(0,179,136,.15)" stroke="#00b388" stroke-width=".8"/>
+              <text x="241" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#00b388">CSV Export</text>
+              <!-- @wire Selector -->
+              <rect x="60" y="40" width="100" height="22" rx="4" fill="rgba(0,112,210,.18)" stroke="#0070d2" stroke-width="1"/>
+              <text x="110" y="53" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#e8f4fd">@wire Selector</text>
+              <text x="110" y="61" text-anchor="middle" font-family="DM Mono,monospace" font-size="5.5" fill="#4e7a96">reactive $params · lazy SOQL</text>
+              <!-- Arrow filter → wire -->
+              <line x1="110" y1="26" x2="110" y2="40" stroke="#00a1e0" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#a4)"/>
+              <!-- Permission Datatable -->
+              <rect x="8" y="78" width="118" height="22" rx="4" fill="rgba(0,161,224,.1)" stroke="#00a1e0" stroke-width="1"/>
+              <text x="67" y="91" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Permission Datatable</text>
+              <text x="67" y="99" text-anchor="middle" font-family="DM Mono,monospace" font-size="5.5" fill="#4e7a96">custom renderers · bool flags</text>
+              <!-- Audit Log -->
+              <rect x="154" y="78" width="118" height="22" rx="4" fill="rgba(0,195,227,.08)" stroke="#00c3e3" stroke-width="1"/>
+              <text x="213" y="91" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#a8c5da">Audit Log View</text>
+              <text x="213" y="99" text-anchor="middle" font-family="DM Mono,monospace" font-size="5.5" fill="#4e7a96">same @wire source · no stale</text>
+              <!-- Arrows wire → children -->
+              <line x1="80" y1="62" x2="67" y2="78" stroke="#0070d2" stroke-width="1" marker-end="url(#a4)"/>
+              <line x1="140" y1="62" x2="170" y2="78" stroke="#0070d2" stroke-width="1" marker-end="url(#a4)"/>
+              <!-- CSV arrow -->
+              <line x1="241" y1="23" x2="241" y2="78" stroke="#00b388" stroke-width=".8" stroke-dasharray="2 2" marker-end="url(#a4g)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="lc-body">
+          <div class="lc-head">
+            <div class="lc-icon" aria-hidden="true">🔍</div>
+            <div><div class="lc-name">Security Permissions Viewer</div><div class="lc-co">OSF Digital · Org security audit tooling · 60% audit effort eliminated</div></div>
+          </div>
+          <p class="lc-desc">Designed the data retrieval strategy to surface org-wide security configuration without SOQL timeouts. Reactive $params drive re-querying automatically — no imperative refresh, no stale cache between filter changes.</p>
+          <ul class="lc-pts">
+            <li>@wire reactive $params: filter state change → property update → wire re-fires → data refreshes. Zero imperative calls in the pipeline</li>
+            <li>Evaluated lazy loading vs full-load for permission data — chose lazy load with field-level SOQL projection to stay within query row limits for large orgs</li>
+            <li>Custom cell renderers for boolean flags — avoids raw true/false rendering that increases auditor cognitive load</li>
+            <li>CSV export uses datatable selected-rows: no round-trip to server, no additional SOQL, export reflects exactly what auditor has filtered to</li>
+          </ul>
+          <div class="lc-tags"><span class="ltag">LWC</span><span class="ltag">@wire</span><span class="ltag">Reactive Params</span><span class="ltag">CSV Export</span></div>
+          <div class="lc-links">
+            <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="ll">🐙 GitHub</a>
+          </div>
+        </div>
+        <div class="lc-action-bar">
+          <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="lc-action-btn primary">🐙 GitHub Repo</a>
+          <a href="#" class="lc-action-btn">📐 Architecture Diagram</a>
+          <a href="#" class="lc-action-btn">🎬 Live Demo</a>
+          <a href="#" class="micro-action" style="margin-left:auto;align-self:center;">Read Architecture Notes →</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════ TECH STACK ════ -->
+<section id="stack" class="alt" aria-labelledby="stack-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">05</span>
+      <div><span class="sl">Tools & Technologies</span><h2 class="st sr d1" id="stack-h">TECH STACK</h2></div>
+    </div>
+    <div class="stack-grid" role="list">
+      <div class="card sc sr d1" role="listitem"><div class="si">☁️</div><div class="sn">Salesforce</div></div>
+      <div class="card sc sr d2" role="listitem"><div class="si">⚡</div><div class="sn">Apex</div></div>
+      <div class="card sc sr d3" role="listitem"><div class="si">🧩</div><div class="sn">LWC</div></div>
+      <div class="card sc sr d4" role="listitem"><div class="si">🔍</div><div class="sn">SOQL / SOSL</div></div>
+      <div class="card sc sr d5" role="listitem"><div class="si">🔄</div><div class="sn">Flow Builder</div></div>
+      <div class="card sc sr d6" role="listitem"><div class="si">🤖</div><div class="sn">Einstein AI</div></div>
+      <div class="card sc sr d1" role="listitem"><div class="si">📲</div><div class="sn">WhatsApp API</div></div>
+      <div class="card sc sr d2" role="listitem"><div class="si">🔗</div><div class="sn">REST / SOAP</div></div>
+      <div class="card sc sr d3" role="listitem"><div class="si">📦</div><div class="sn">Batch Apex</div></div>
+      <div class="card sc sr d4" role="listitem"><div class="si">⚙️</div><div class="sn">Queueable</div></div>
+      <div class="card sc sr d5" role="listitem"><div class="si">📣</div><div class="sn">Platform Events</div></div>
+      <div class="card sc sr d6" role="listitem"><div class="si">🔑</div><div class="sn">SSO / OAuth</div></div>
+      <div class="card sc sr d1" role="listitem"><div class="si">🗄️</div><div class="sn">Data Loader</div></div>
+      <div class="card sc sr d2" role="listitem"><div class="si">🟨</div><div class="sn">JavaScript</div></div>
+      <div class="card sc sr d3" role="listitem"><div class="si">🐙</div><div class="sn">Git</div></div>
+      <div class="card sc sr d4" role="listitem"><div class="si">🧪</div><div class="sn">Apex Testing</div></div>
+      <div class="card sc sr d5" role="listitem"><div class="si">📊</div><div class="sn">Dashboards</div></div>
+      <div class="card sc sr d6" role="listitem"><div class="si">☁️</div><div class="sn">AWS</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ ARCHITECTURE & EXPERTISE ════ -->
+<section id="architecture" aria-labelledby="arch-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">06</span>
+      <div><span class="sl">Design Principles in Practice</span><h2 class="st sr d1" id="arch-h">ARCHITECTURE & EXPERTISE</h2></div>
+    </div>
+    <div class="arch-grid">
+      <article class="card ac sr d1">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">🧱</div>
+        <h3 class="ac-title">Trigger Framework &amp; Org Architecture</h3>
+        <ul class="ac-pts"><li>One trigger per object — evaluated ff lib vs custom dispatcher, chose custom for lower dependency overhead</li><li>Service layer: all business logic lives here, callable from trigger, API, Flow, batch — single entry point</li><li>Selector layer: all SOQL centralised, reused across consumers, CRUD/FLS enforced at query construction</li><li>Context routing: before/after x insert/update/delete handled discretely — no conditional soup in handlers</li><li>Custom exception hierarchy: typed exceptions give ops teams actionable error categories, not stack traces</li></ul>
+      </article>
+      <article class="card ac sr d2">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">📐</div>
+        <h3 class="ac-title">Domain Layer &amp; Design Patterns</h3>
+        <ul class="ac-pts"><li>Interfaces over concrete classes — every implementation is swappable, every dependency is mockable</li><li>Factory pattern: runtime rule selection without conditional chains that grow with every new requirement</li><li>Strategy pattern: business rule variants driven by Custom Metadata — new variant = new record, not a code change</li><li>Constructor injection: dependencies declared, not instantiated — classes are fully testable in isolation</li><li>Domain class per SObject: behaviour collocated with data, not scattered across triggers and utilities</li></ul>
+      </article>
+      <article class="card ac sr d3">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">⚡</div>
+        <h3 class="ac-title">Async Processing Strategy</h3>
+        <ul class="ac-pts"><li>Batch vs Queueable vs Future: decision based on data volume, callout need, chaining requirement, and mixed-DML risk — not convenience</li><li>Batch scope sizing: calibrated per-object against heap profile and CPU budget, not left at default 200</li><li>Queueable chains: every link is idempotent with a correlation ID — safe to re-execute on failure without duplicate processing</li><li>Scheduled Apex: health-check logging on every run — silent failures are caught before they cause data drift</li><li>Platform Cache: reference data (permission sets, config records) cached at org partition — repeat SOQL on hot paths eliminated</li></ul>
+      </article>
+      <article class="card ac sr d4">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">🔗</div>
+        <h3 class="ac-title">Integration Fault Tolerance</h3>
+        <ul class="ac-pts"><li>Sync vs async decision: synchronous REST only where immediate response is required by UX — everything else is event-driven or queued</li><li>Exponential backoff with jitter: prevents thundering-herd retry storms on external rate limits</li><li>Platform Events: producer doesn't wait for consumer — decoupling eliminates cascading failures across integration boundaries</li><li>Dead-letter queue: failed events persisted for replay, not silently dropped — every failure is visible and recoverable</li><li>Named Credentials + Connected Apps: auth configuration externalised — rotate credentials without a code deployment</li></ul>
+      </article>
+      <article class="card ac sr d5">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">🔒</div>
+        <h3 class="ac-title">Security Governance Architecture</h3>
+        <ul class="ac-pts"><li>Access modelling before configuration: OWD, Role Hierarchy, and sharing strategy designed on paper, reviewed with stakeholders, then implemented — not discovered post-deployment</li><li>CRUD + FLS enforcement: applied in Selector layer so every consumer of the query inherits the check automatically</li><li>with sharing by default, without sharing declared explicitly only where a business justification exists and is documented</li><li>Permission Set Groups model: access bundles are auditable, revocable atomically, and don't multiply Profiles with every role variant</li><li>Integration identity: dedicated Connected App, minimum-privilege profile, Named Credential — zero shared user accounts, zero hardcoded secrets</li></ul>
+      </article>
+      <article class="card ac sr d6">
+        <div class="card-stripe"></div>
+        <div class="ac-icon" aria-hidden="true">🧪</div>
+        <h3 class="ac-title">Test Strategy &amp; Quality Architecture</h3>
+        <ul class="ac-pts"><li>Test design mirrors production architecture: unit tests hit service layer directly, integration tests exercise trigger → handler → service → selector as a unit</li><li>TestDataFactory: fluent builder pattern, no seeAllData=true, no org-specific IDs hardcoded — deployable to any sandbox without modification</li><li>Stub API + HttpCalloutMock: HTTP boundaries fully isolated — tests never depend on external service availability or response speed</li><li>Boundary testing: bulk boundaries (200+ records), governor-limit edge cases, and exception paths are first-class test scenarios</li><li>@TestSetup: single shared setup reduces test execution time 3–5× on large orgs — prevents database thrash across test methods</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PHILOSOPHY STRIPE ════ -->
+<div id="philo" role="complementary">
+  <div class="philo-inner">
+    <div>
+      <span class="philo-ey">Architectural Philosophy</span>
+      <h2 class="philo-h">Design First.<br/>Then Code.</h2>
+      <p class="philo-b">Every architecture decision is a trade-off. I make them deliberately — async vs sync, event-driven vs polling, declarative vs programmatic, tight vs loose coupling. The right answer changes with context. What doesn't change: the decision gets documented and the org gets something maintainable.</p>
+    </div>
+    <div class="philo-pills">
+      <span class="pp">🏗️ System Design First</span><span class="pp">⚡ Async Strategy</span>
+      <span class="pp">📡 Event-Driven Architecture</span><span class="pp">🔒 Security Governance</span>
+      <span class="pp">📊 Data Architecture</span><span class="pp">🔁 Integration Fault Tolerance</span>
+      <span class="pp">🧪 Behaviour-Driven Testing</span><span class="pp">🔧 Reusable Frameworks</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ HOW I BUILD ════ -->
+<section id="howibuild" class="alt" aria-labelledby="hib-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">07</span>
+      <div><span class="sl">Design Thinking in Practice</span><h2 class="st sr d1" id="hib-h">HOW I THINK &amp; BUILD</h2></div>
+    </div>
+    <div class="hib-grid">
+      <article class="card hc sr d1"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">🧱</span><h3 class="hc-title">Org Architecture First</h3><p class="hc-desc">Before any code, I design the org's structural layer — trigger dispatch, service boundaries, and data access patterns.</p><ul class="hc-pts"><li>Trigger as router only — logic never lives here, so behaviour is testable independently</li><li>Service layer as the single entry point — called from trigger, Apex REST, Flow, Batch without duplication</li><li>Selector layer enforces SOQL hygiene and CRUD/FLS centrally — every consumer inherits the governance</li><li>Exception hierarchy designed to give ops teams actionable failure categories</li></ul></article>
+      <article class="card hc sr d2"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">📐</span><h3 class="hc-title">Extensibility by Design</h3><p class="hc-desc">I write code that a new developer can extend the day the original author leaves.</p><ul class="hc-pts"><li>Interfaces over concrete classes — adding a new behaviour means implementing an interface, not modifying existing code</li><li>Factory + Strategy: new business rule variants via Custom Metadata, not code deployments</li><li>Constructor injection: no hidden dependencies, full testability in isolation</li><li>Domain classes: SObject behaviour collocated with the object — discoverable, not scattered</li></ul></article>
+      <article class="card hc sr d3"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">🧩</span><h3 class="hc-title">LWC Communication Decisions</h3><p class="hc-desc">I choose the communication pattern based on component topology — never by habit.</p><ul class="hc-pts"><li>@api + CustomEvents: directional, explicit, low coupling — default for related component trees</li><li>LMS: selected when components have no shared ancestor — not used as a shortcut to avoid hierarchy design</li><li>@wire vs imperative: @wire for reactive data that should refresh on state change; imperative for conditional or user-triggered fetches only</li><li>State ownership mapped before markup is written — who owns state, who consumes it, what triggers refresh</li></ul></article>
+      <article class="card hc sr d4"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">🔒</span><h3 class="hc-title">Security as Architecture</h3><p class="hc-desc">I model the access architecture before writing any configuration — not after the first audit finding.</p><ul class="hc-pts"><li>Access model on paper first: OWD, hierarchy, sharing strategy — agreed with stakeholders before configuration begins</li><li>CRUD + FLS in the Selector layer: every query consumer inherits enforcement automatically</li><li>Permission Set Groups: atomic, auditable access bundles — revoke cleanly without touching Profiles or other users</li><li>Integration identity: dedicated Connected App, minimum privilege, Named Credential — zero shared accounts, zero hardcoded secrets</li></ul></article>
+      <article class="card hc sr d5"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">🧪</span><h3 class="hc-title">Test Strategy as Quality Signal</h3><p class="hc-desc">I design the test architecture the same way I design the production code — layered, isolated, and meaningful.</p><ul class="hc-pts"><li>Unit tests at service layer: fast, isolated, prove business logic without trigger overhead</li><li>Integration tests at trigger boundary: verify the full handler → service → selector pipeline as a unit</li><li>TestDataFactory with fluent builders: org-agnostic, no hardcoded IDs, deployable to any sandbox</li><li>Boundary tests are first-class: bulk (200+), governor edges, and exception paths are mandatory — not optional</li></ul></article>
+      <article class="card hc sr d6"><div class="card-stripe"></div><span class="hc-icon" aria-hidden="true">🔗</span><h3 class="hc-title">Integration Architecture Decisions</h3><p class="hc-desc">I choose the integration pattern based on coupling risk, failure blast radius, and operational observability.</p><ul class="hc-pts"><li>Sync vs async: synchronous only where UX demands immediate response — otherwise Platform Events or Queueable to decouple failure modes</li><li>Retry strategy: exponential backoff with jitter and a ceiling, configured via Custom Metadata — no hardcoded retry counts</li><li>Dead-letter queue: failed events persisted for replay — failures are visible and recoverable, never silently dropped</li><li>Every integration layer has structured error logging, a correlation ID, and an ops alert threshold — silent failures are not acceptable</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PROJECTS ════ -->
+<section id="projects" aria-labelledby="proj-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">08</span>
+      <div><span class="sl">Featured Work</span><h2 class="st sr d1" id="proj-h">PROJECTS</h2></div>
+    </div>
+    <div class="proj-grid">
+      <article class="card pc sr d1"><div class="card-stripe"></div><div class="pn" aria-hidden="true">01</div><div class="pi2 b" aria-hidden="true">📲</div><h3 class="pt2">WhatsApp Business Integration</h3><p class="pd2">Designed the inbound integration layer with fault tolerance as the primary constraint — webhook HMAC-SHA256 validation, structured message parsing, idempotent case/contact creation, and exponential backoff retry. Chose Platform Events over synchronous processing to decouple message intake from downstream Salesforce record creation.</p><div class="ptags"><span class="ptag">Apex REST</span><span class="ptag">WhatsApp API</span><span class="ptag">Platform Events</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Integration Flow →</a><a href="#" class="micro-action">See Fault-Tolerance Design →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Architecture</a><a href="#" class="pc-action-btn">📋 Case Study</a></div></article>
+      <article class="card pc sr d2"><div class="card-stripe"></div><div class="pn" aria-hidden="true">02</div><div class="pi2 c" aria-hidden="true">🗄️</div><h3 class="pt2">Enterprise Data Migration</h3><p class="pd2">Designed the full data strategy before writing a line of Apex — source profiling, transformation rule engine, governor-limit-calibrated Batch scope sizing (evaluated heap vs CPU bottleneck per object), staged rollback with checkpointing, and a reconciliation audit that ran independently of the migration. 1M+ records. Zero data loss.</p><div class="ptags"><span class="ptag">Batch Apex</span><span class="ptag">Data Loader</span><span class="ptag">SOQL</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Migration Strategy Diagram →</a><a href="#" class="micro-action">Read Architecture Notes →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Architecture</a><a href="#" class="pc-action-btn">📋 Strategy Doc</a></div></article>
+      <article class="card pc sr d3"><div class="card-stripe"></div><div class="pn" aria-hidden="true">03</div><div class="pi2 g" aria-hidden="true">🔔</div><h3 class="pt2">Notification Delivery Engine</h3><p class="pd2">Designed the async processing strategy first — Batch Apex for dispatch volume, Queueable chains for per-message retry with idempotency keys to prevent duplicates, Custom Metadata for channel and template configuration. Architecture decision: channel-agnostic core with pluggable channel adapters — adding a new channel requires no changes to the core dispatch engine.</p><div class="ptags"><span class="ptag">Batch Apex</span><span class="ptag">Queueable</span><span class="ptag">Custom Metadata</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Async Processing Flow →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Architecture</a><a href="#" class="pc-action-btn">🎬 Demo</a></div></article>
+      <article class="card pc sr d4"><div class="card-stripe"></div><div class="pn" aria-hidden="true">04</div><div class="pi2 b" aria-hidden="true">🤖</div><h3 class="pt2">Einstein Bot — Support Automation</h3><p class="pd2">Architecture decision: evaluated IVR, Einstein Bot, and custom chatbot — recommended Einstein Bot for native record access and lower training maintenance overhead. Designed the full intent hierarchy, Apex action integration layer for real-time data retrieval, and designed the handoff protocol to preserve full conversation context on escalation. 40% query deflection. 90% CSAT.</p><div class="ptags"><span class="ptag">Einstein Bot</span><span class="ptag">Service Cloud</span><span class="ptag">Apex Actions</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Intent Hierarchy →</a><a href="#" class="micro-action">See AI Architecture →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Architecture</a><a href="#" class="pc-action-btn">📋 Case Study</a></div></article>
+      <article class="card pc sr d5"><div class="card-stripe"></div><div class="pn" aria-hidden="true">05</div><div class="pi2 o" aria-hidden="true">⚡</div><h3 class="pt2">Apex Utility Framework</h3><p class="pd2">Reusable org-foundation library — trigger dispatcher (evaluates and routes context without conditional soup), generic SOQL Selector (enforces CRUD/FLS, returns strongly typed results), custom exception hierarchy (typed fault categories, not raw catch-alls), and a structured logger driven entirely by Custom Metadata configuration. Zero org-specific references — deploys to any org without modification.</p><div class="ptags"><span class="ptag">Apex</span><span class="ptag">Design Patterns</span><span class="ptag">Trigger Framework</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Framework Architecture →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Design Patterns</a><a href="#" class="pc-action-btn">📋 Docs</a></div></article>
+      <article class="card pc sr d6"><div class="card-stripe"></div><div class="pn" aria-hidden="true">06</div><div class="pi2 c" aria-hidden="true">🔑</div><h3 class="pt2">SSO / SAML Identity Integration</h3><p class="pd2">Designed the SAML attribute mapping and JIT provisioning strategy before any Salesforce configuration — user identifier, role attribute, profile assignment logic, and JIT handler Apex all specified upfront. Designed the LIVE domain cutover sequence with a documented rollback trigger and a tested sandbox clone before the production window. Zero downtime. Zero rollbacks.</p><div class="ptags"><span class="ptag">SSO</span><span class="ptag">OAuth 2.0</span><span class="ptag">SAML</span></div><div class="micro-actions-row"><a href="#" class="micro-action">View Security Architecture →</a><a href="#" class="micro-action">Read Cutover Notes →</a></div><div class="pc-action-bar"><a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="pc-action-btn">🐙 GitHub</a><a href="#" class="pc-action-btn">📐 Architecture</a><a href="#" class="pc-action-btn">📋 Docs</a></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CERTIFICATIONS ════ -->
+<section id="certs" class="alt" aria-labelledby="cert-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">09</span>
+      <div><span class="sl">Verified Credentials</span><h2 class="st sr d1" id="cert-h">CERTIFICATIONS</h2></div>
+    </div>
+    <div class="cert-grid">
+      <article class="card certc sr d1"><span class="ci" aria-hidden="true">🏅</span><h3 class="cn">Platform Developer I</h3><div class="ciss">Salesforce · Verified</div></article>
+      <article class="card certc sr d2"><span class="ci" aria-hidden="true">🏅</span><h3 class="cn">Salesforce Administrator</h3><div class="ciss">Salesforce · Verified</div></article>
+      <article class="card certc sr d3"><span class="ci" aria-hidden="true">🏅</span><h3 class="cn">Service Cloud Consultant</h3><div class="ciss">Salesforce · Verified</div></article>
+      <article class="card certc sr d4"><span class="ci" aria-hidden="true">🏅</span><h3 class="cn">AI Associate</h3><div class="ciss">Salesforce · Verified</div></article>
+      <article class="card certc sr d5"><span class="ci" aria-hidden="true">☁️</span><h3 class="cn">AWS Cloud Practitioner</h3><div class="ciss">Amazon Web Services</div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ════ TRAILHEAD ════ -->
+<section id="trailhead" aria-labelledby="trail-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">10</span>
+      <div><span class="sl">Salesforce Trailblazer</span><h2 class="st sr d1" id="trail-h">TRAILHEAD</h2></div>
+    </div>
+    <div class="th-banner sr ss">
+      <div class="th-l">
+        <div class="th-em" aria-hidden="true">🏔️</div>
+        <div><div class="th-lbl">TRAILHEAD<br/>RANGER</div><div class="th-sub">Salesforce Trailblazer</div></div>
+      </div>
+      <div class="th-nums" role="list">
+        <div class="thn" role="listitem"><div class="thn-v">145<em>k</em></div><div class="thn-l">Points</div></div>
+        <div class="thn" role="listitem"><div class="thn-v">182</div><div class="thn-l">Badges</div></div>
+        <div class="thn" role="listitem"><div class="thn-v">19</div><div class="thn-l">Trails</div></div>
+      </div>
+      <a href="https://www.salesforce.com/trailblazer/hritickchourasia" target="_blank" rel="noopener" class="th-cta">🏆 View Profile →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════ RECRUITER CTA — NEW ════ -->
+<section id="recruiter-cta" aria-labelledby="rcta2-h">
+  <div class="rcta2-inner">
+    <span class="rcta2-eyebrow sr">Open to new opportunities</span>
+    <h2 class="rcta2-h sr d1" id="rcta2-h">Let's Build Scalable<br/><em>Salesforce Systems Together</em></h2>
+    <div class="avail-badges sr d2">
+      <span class="avail-badge blue">🌐 Remote Friendly</span>
+      <span class="avail-badge blue">✈️ Open to Relocation</span>
+      <span class="avail-badge blue">📍 Pune · BLR · HYD · Noida</span>
+    </div>
+    <div class="rcta2-btns sr d3">
+      <a href="mailto:hritick84ya@gmail.com?subject=Interview%20Request%20-%20Salesforce%20Developer&body=Hi%20Hritick%2C%20I%20would%20like%20to%20schedule%20an%20interview." class="rcta2-btn p">📅 Schedule Interview</a>
+      <a href="Hritick_Chourasia_Resume.pdf" target="_blank" rel="noopener" class="rcta2-btn p">📄 Download Resume</a>
+      <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="rcta2-btn s">💼 View LinkedIn</a>
+      <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="rcta2-btn s">🐙 Explore GitHub</a>
+    </div>
+    <p class="rcta2-note sr d4">3+ years · 4× Certified · Trailhead Ranger · 1M+ records migrated · Zero downtime releases</p>
+  </div>
+</section>
+
+<!-- ════ RECRUITER CTA (old, kept for structure) ════ -->
+<section id="rcta" aria-labelledby="rcta-h" style="display:none;">
+  <div class="rcta-inner">
+    <div class="sr">
+      <h2 class="rcta-h" id="rcta-h">HIRE A DEVELOPER<br/>WHO <em>OWNS THE OUTCOME.</em></h2>
+    </div>
+  </div>
+</section>
+<!-- ════ OPEN TO WORK ════ -->
+<section id="otw" aria-labelledby="otw-h">
+  <div class="otw-inner">
+    <div class="sr">
+      <h2 class="otw-h" id="otw-h">SENIOR DEVELOPER.<br/><em>AVAILABLE NOW.</em></h2>
+      <p class="otw-p">3 years enterprise delivery. 4× Certified. Trailhead Ranger. Production systems, zero downtime, architectural ownership. Targeting Senior Developer and Solution Architect roles.</p>
+      <div class="otw-tags">
+        <span class="ot">Kolkata</span><span class="ot">Pune</span><span class="ot">Bangalore</span>
+        <span class="ot">Hyderabad</span><span class="ot">Noida</span><span class="ot">Remote</span>
+      </div>
+    </div>
+    <div class="otw-btns sr" style="transition-delay:.08s">
+      <a href="mailto:hritick84ya@gmail.com?subject=Interview%20Request%20-%20Salesforce%20Developer" class="btn btn-p">✉ Schedule Interview</a>
+      <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="btn btn-s">💼 View LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CONTACT ════ -->
+<section id="contact" class="alt" aria-labelledby="contact-h">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sn sr sl" aria-hidden="true">11</span>
+      <div><span class="sl">Get In Touch</span><h2 class="st sr d1" id="contact-h">CONTACT</h2></div>
+    </div>
+    <div class="contact-grid">
+      <div class="sr">
+        <h2 class="contact-h">LET'S<br/><em>TALK.</em></h2>
+        <p class="contact-p">Open to Senior Salesforce Developer roles. Best fit: complex orgs, architectural ownership, clear path to Solution Architect.</p>
+        <a href="mailto:hritick84ya@gmail.com" class="email-btn" style="margin-bottom:.7rem;">✉ Start a Conversation</a>
+        <a href="tel:+916205114656" style="display:inline-flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:500;color:var(--text2);margin-top:.5rem;">📞 +91 62051 14656</a>
+      </div>
+      <div class="contact-action-cards sr" style="transition-delay:.08s">
+        <a href="mailto:hritick84ya@gmail.com" class="cac">
+          <div class="cac-left">
+            <div class="cac-ic" aria-hidden="true">✉</div>
+            <div><div class="cac-label">Email</div><div class="cac-val">hritick84ya@gmail.com</div></div>
+          </div>
+          <span class="cac-action">Start Conversation →</span>
+        </a>
+        <a href="https://www.linkedin.com/in/hritick-chourasia/" target="_blank" rel="noopener" class="cac">
+          <div class="cac-left">
+            <div class="cac-ic" aria-hidden="true">💼</div>
+            <div><div class="cac-label">LinkedIn</div><div class="cac-val">/in/hritick-chourasia</div></div>
+          </div>
+          <span class="cac-action">View Profile →</span>
+        </a>
+        <a href="https://github.com/hritick84ya" target="_blank" rel="noopener" class="cac">
+          <div class="cac-left">
+            <div class="cac-ic" aria-hidden="true">🐙</div>
+            <div><div class="cac-label">GitHub</div><div class="cac-val">@hritick84ya</div></div>
+          </div>
+          <span class="cac-action">See Code →</span>
+        </a>
+        <a href="https://www.salesforce.com/trailblazer/hritickchourasia" target="_blank" rel="noopener" class="cac">
+          <div class="cac-left">
+            <div class="cac-ic" aria-hidden="true">🏔️</div>
+            <div><div class="cac-label">Trailhead</div><div class="cac-val">Ranger · 145k pts · 182 Badges · 19 Trails</div></div>
+          </div>
+          <span class="cac-action">View Achievements →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <div class="fb">HRITICK <em>CHOURASIA</em></div>
+  <div class="fr">
+    <div class="fs"><div class="ldot" aria-hidden="true"></div>Senior Salesforce Developer · Open to Opportunities</div>
+    <div class="fc">© 2026</div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── Particles — visibility-aware, mobile-optimised ── */
+(function(){
+  const c=document.getElementById('pts'),ctx=c.getContext('2d');
+  let W,H,pts=[],raf;
+  const N=window.innerWidth<768?40:75;
+  const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+  function Pt(){
+    this.x=Math.random()*W; this.y=H+Math.random()*50;
+    this.r=Math.random()*1.4+0.25;
+    this.vy=-(Math.random()*0.42+0.13); this.vx=(Math.random()-.5)*.22;
+    this.op=Math.random()*.28+.06;
+    const t=Math.random();
+    this.col=t>.6?'0,161,224':t>.3?'0,112,210':'0,195,227';
+  }
+  Pt.prototype.tick=function(){
+    this.y+=this.vy; this.x+=this.vx;
+    if(this.y<-6)Object.assign(this,new Pt(),{y:H+8});
+  };
+  for(let i=0;i<N;i++){const p=new Pt();p.y=Math.random()*H;pts.push(p);}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){p.tick();ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fillStyle=`rgba(${p.col},${p.op})`;ctx.fill();}
+    raf=requestAnimationFrame(draw);
+  }
+  draw();
+  document.addEventListener('visibilitychange',()=>document.hidden?cancelAnimationFrame(raf):draw());
+})();
+
+/* ── Typewriter ── */
+(function(){
+  const el=document.getElementById('tw');
+  const ps=['System design. Not just code.','1M+ records — scoped, migrated, reconciled.','Async strategy: Batch → Queueable → Future.','Event-driven architecture. Platform Events.','Security governance. Not an afterthought.','Org maintainability. Your next developer thanks you.','Senior Developer → Solution Architect.'];
+  let pi=0,ci=0,del=false,w=0;
+  function tick(){
+    const p=ps[pi];
+    if(!del){el.textContent=p.slice(0,ci+1);ci++;if(ci===p.length){del=true;w=50;}}
+    else{if(w-->0){setTimeout(tick,26);return;}el.textContent=p.slice(0,ci-1);ci--;if(ci===0){del=false;pi=(pi+1)%ps.length;}}
+    setTimeout(tick,del?30:56);
+  }
+  setTimeout(tick,1000);
+})();
+
+/* ── Scroll reveal ── */
+document.documentElement.classList.add('js');
+const els=document.querySelectorAll('.sr');
+const mark=()=>els.forEach(e=>{if(e.getBoundingClientRect().top<window.innerHeight*1.06)e.classList.add('on');});
+mark();
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target);}});},{threshold:.04,rootMargin:'0px 0px -20px 0px'});
+els.forEach(e=>{if(!e.classList.contains('on'))obs.observe(e);});
+
+/* ── Nav scroll + active ── */
+const nav=document.getElementById('nav');
+const secs=[...document.querySelectorAll('section[id]')];
+const nls=[...document.querySelectorAll('.nav-links a')];
+let tick2=false;
+window.addEventListener('scroll',()=>{
+  if(tick2)return; tick2=true;
+  requestAnimationFrame(()=>{
+    nav.classList.toggle('up',window.scrollY>18);
+    let cur='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-130)cur=s.id;});
+    nls.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));
+    tick2=false;
+  });
+},{passive:true});
+
+/* ── Hamburger ── */
+const ham=document.getElementById('ham'),mob=document.getElementById('mob');
+ham.addEventListener('click',()=>{
+  const o=mob.classList.toggle('open');
+  ham.classList.toggle('x',o);
+  ham.setAttribute('aria-expanded',o);
+  document.body.style.overflow=o?'hidden':'';
+});
+function closeMob(){mob.classList.remove('open');ham.classList.remove('x');ham.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+
+/* ── Stat counters ── */
+function count(el){
+  const target=parseInt(el.dataset.to);
+  const em=el.innerHTML.match(/<em>(.*?)<\/em>/)?.[1]||'';
+  const dur=1300,t0=performance.now();
+  (function f(now){
+    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
+    el.innerHTML=Math.round(e*target)+(em?`<em>${em}</em>`:'');
+    if(p<1)requestAnimationFrame(f);
+  })(performance.now());
+}
+const co=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){count(e.target);co.unobserve(e.target);}});},{threshold:.3});
+document.querySelectorAll('[data-to]').forEach(e=>co.observe(e));
+
+/* ── Global Action Bar — show after first scroll ── */
+(function(){
+  const gab=document.getElementById('gab');
+  let shown=false;
+  window.addEventListener('scroll',()=>{
+    if(!shown && window.scrollY>120){shown=true;gab.classList.add('visible');}
+    else if(shown && window.scrollY<=120){shown=false;gab.classList.remove('visible');}
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
